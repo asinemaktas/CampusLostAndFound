@@ -1,0 +1,59 @@
+﻿@model CampusLostAndFound.Models.FoundItem
+
+@{
+    ViewData["Title"] = "Eşya Detayları";
+}
+
+<h1>Eşya Detayları</h1>
+
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">Eşya Adı</dt>
+    <dd class="col-sm-9">@Model.Name</dd>
+
+    <dt class="col-sm-3">Kategori</dt>
+    <dd class="col-sm-9">@Model.Category</dd>
+
+    <dt class="col-sm-3">Renk</dt>
+    <dd class="col-sm-9">@Model.Color</dd>
+
+    <dt class="col-sm-3">Bulunduğu Bina</dt>
+    <dd class="col-sm-9">@Model.Building</dd>
+
+    <dt class="col-sm-3">Bulunduğu Yer</dt>
+    <dd class="col-sm-9">@Model.FoundLocation</dd>
+
+    <dt class="col-sm-3">Bulunma Tarihi ve Saati</dt>
+    <dd class="col-sm-9">
+        @Model.FoundDate.ToString("dd.MM.yyyy HH:mm")
+    </dd>
+
+    <dt class="col-sm-3">Açıklama</dt>
+    <dd class="col-sm-9">@Model.PublicDescription</dd>
+</dl>
+
+<div>
+    <a asp-action="Index" class="btn btn-secondary">
+        Listeye Dön
+    </a>
+
+    @if (ViewBag.CanClaim == true)
+    {
+        <a asp-controller="OwnershipClaims"
+           asp-action="Create"
+           asp-route-foundItemId="@Model.Id"
+           class="btn btn-success">
+            Bu Eşya Benim
+        </a>
+    }
+
+    @if (User.IsInRole("Security") || User.IsInRole("Admin"))
+    {
+        <a asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="btn btn-warning">
+            Düzenle
+        </a>
+    }
+</div>

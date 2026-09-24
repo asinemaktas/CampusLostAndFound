@@ -1,0 +1,167 @@
+﻿@page
+@model RegisterModel
+
+@{
+    ViewData["Title"] = "Kayıt Ol";
+    ViewData["FullWidth"] = true;
+}
+
+<section class="auth-page auth-register-page">
+    <div class="auth-card auth-register-card">
+        <div class="auth-card-header">
+            <h1>Kayıt Ol</h1>
+
+            <p>
+                Bulunan eşyaları incelemek ve sahiplik talebi
+                göndermek için öğrenci hesabınızı oluşturun.
+            </p>
+        </div>
+
+        <div class="auth-card-body">
+            <form id="registerForm"
+                  asp-route-returnUrl="@Model.ReturnUrl"
+                  method="post">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="auth-validation-summary text-danger"
+                     role="alert">
+                </div>
+
+                <div class="auth-field-group">
+                    <label asp-for="Input.Email"
+                           class="auth-label">
+                        E-posta Adresi
+                    </label>
+
+                    <div class="auth-input-wrapper">
+                        <span class="auth-input-icon"
+                              aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M3.5 6.5h17v11h-17z" />
+                                <path d="m4 7 8 6 8-6" />
+                            </svg>
+                        </span>
+
+                        <input asp-for="Input.Email"
+                               class="form-control auth-input"
+                               autocomplete="username"
+                               aria-required="true"
+                               placeholder="ornek@ogrenci.edu.tr" />
+                    </div>
+
+                    <span asp-validation-for="Input.Email"
+                          class="text-danger auth-field-error">
+                    </span>
+                </div>
+
+                <div class="auth-field-group">
+                    <label asp-for="Input.Password"
+                           class="auth-label">
+                        Şifre
+                    </label>
+
+                    <div class="auth-input-wrapper">
+                        <span class="auth-input-icon"
+                              aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="10" width="14" height="10" rx="2" />
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                            </svg>
+                        </span>
+
+                        <input asp-for="Input.Password"
+                               class="form-control auth-input auth-password-input"
+                               autocomplete="new-password"
+                               aria-required="true"
+                               placeholder="Şifrenizi girin" />
+
+                        <button type="button"
+                                class="auth-password-toggle"
+                                aria-label="Şifreyi göster"
+                                onclick="toggleAuthPassword('Input_Password', this)">
+                            <svg viewBox="0 0 24 24"
+                                 aria-hidden="true">
+                                <path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z" />
+                                <circle cx="12" cy="12" r="2.5" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <span asp-validation-for="Input.Password"
+                          class="text-danger auth-field-error">
+                    </span>
+                </div>
+
+                <div class="auth-field-group">
+                    <label asp-for="Input.ConfirmPassword"
+                           class="auth-label">
+                        Şifre Tekrarı
+                    </label>
+
+                    <div class="auth-input-wrapper">
+                        <span class="auth-input-icon"
+                              aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="10" width="14" height="10" rx="2" />
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                            </svg>
+                        </span>
+
+                        <input asp-for="Input.ConfirmPassword"
+                               class="form-control auth-input auth-password-input"
+                               autocomplete="new-password"
+                               aria-required="true"
+                               placeholder="Şifrenizi tekrar girin" />
+
+                        <button type="button"
+                                class="auth-password-toggle"
+                                aria-label="Şifre tekrarını göster"
+                                onclick="toggleAuthPassword('Input_ConfirmPassword', this)">
+                            <svg viewBox="0 0 24 24"
+                                 aria-hidden="true">
+                                <path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z" />
+                                <circle cx="12" cy="12" r="2.5" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <span asp-validation-for="Input.ConfirmPassword"
+                          class="text-danger auth-field-error">
+                    </span>
+                </div>
+
+                <button id="registerSubmit"
+                        type="submit"
+                        class="btn auth-submit-button">
+                    Kayıt Ol
+                </button>
+
+                <p class="auth-switch-text">
+                    Zaten hesabınız var mı?
+
+                    <a asp-page="./Login"
+                       asp-route-returnUrl="@Model.ReturnUrl">
+                        Giriş Yap
+                    </a>
+                </p>
+            </form>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function toggleAuthPassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const showPassword = input.type === "password";
+
+            input.type = showPassword ? "text" : "password";
+            button.setAttribute(
+                "aria-label",
+                showPassword ? "Şifreyi gizle" : "Şifreyi göster"
+            );
+        }
+    </script>
+}

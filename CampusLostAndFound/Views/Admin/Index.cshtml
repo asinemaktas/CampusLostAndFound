@@ -1,0 +1,146 @@
+﻿@model IEnumerable<CampusLostAndFound.ViewModels.AdminUserViewModel>
+
+@{
+    ViewData["Title"] = "Kullanıcı Yönetimi";
+}
+
+<div class="py-4">
+
+    <div class="mb-4">
+        <h1 class="display-6 fw-bold">
+            Kullanıcı Yönetimi
+        </h1>
+
+        <p class="text-muted">
+            Sistemdeki kullanıcıları görüntüleyebilir,
+            güvenlik yetkisi verebilir veya mevcut
+            güvenlik yetkisini kaldırabilirsiniz.
+        </p>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Sistemde kayıtlı kullanıcı bulunmuyor.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>E-posta</th>
+                            <th>Mevcut Rol</th>
+                            <th class="text-end">İşlem</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @user.Email
+                                </td>
+
+                                <td>
+                                    @if (user.IsAdmin)
+                                    {
+                                        <span class="badge bg-danger">
+                                            Admin
+                                        </span>
+                                    }
+                                    else if (user.IsSecurity)
+                                    {
+                                        <span class="badge bg-success">
+                                            Güvenlik
+                                        </span>
+                                    }
+                                    else if (user.IsStudent)
+                                    {
+                                        <span class="badge bg-primary">
+                                            Öğrenci
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            Rol Atanmamış
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="text-end">
+                                    @if (user.IsAdmin)
+                                    {
+                                        <span class="text-muted">
+                                            İşlem yapılamaz
+                                        </span>
+                                    }
+                                    else if (user.IsSecurity)
+                                    {
+                                        <form asp-controller="Admin"
+                                              asp-action="RevokeSecurity"
+                                              method="post"
+                                              class="d-inline">
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@user.Id" />
+
+                                            <button type="submit"
+                                                    class="btn btn-outline-danger btn-sm"
+                                                    onclick="return confirm('Bu kullanıcının güvenlik yetkisi kaldırılsın mı?');">
+                                                Güvenlik Yetkisini Kaldır
+                                            </button>
+
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-controller="Admin"
+                                              asp-action="GrantSecurity"
+                                              method="post"
+                                              class="d-inline">
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@user.Id" />
+
+                                            <button type="submit"
+                                                    class="btn btn-success btn-sm"
+                                                    onclick="return confirm('Bu kullanıcıya güvenlik yetkisi verilsin mi?');">
+                                                Güvenlik Yetkisi Ver
+                                            </button>
+
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    }
+
+</div>

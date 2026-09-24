@@ -1,0 +1,132 @@
+﻿@using System.Globalization
+@model IEnumerable<CampusLostAndFound.Models.FoundItemReport>
+
+@{
+    ViewData["Title"] = "Teslim Alınan Bildirimler";
+}
+
+<div class="mb-4">
+    <h1>Teslim Alınan Bildirimler</h1>
+
+    <p class="text-muted mb-0">
+        Güvenlik tarafından teslim alınmış ancak henüz bulunan
+        eşya ilanına dönüştürülmemiş bildirimler.
+    </p>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        İlan bilgileri tamamlanmayı bekleyen bildirim bulunmuyor.
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var report in Model)
+        {
+            <div class="col-lg-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="row g-0">
+
+                        <div class="col-md-5">
+                            @if (!string.IsNullOrWhiteSpace(report.PhotoPath))
+                            {
+                                <img src="@report.PhotoPath"
+                                     class="img-fluid rounded-start w-100"
+                                     style="height: 100%; min-height: 260px; object-fit: cover;"
+                                     alt="@report.ItemName" />
+                            }
+                            else
+                            {
+                                <div class="d-flex align-items-center justify-content-center bg-light h-100"
+                                     style="min-height: 260px;">
+                                    Fotoğraf bulunamadı
+                                </div>
+                            }
+                        </div>
+
+                        <div class="col-md-7">
+                            <div class="card-body">
+
+                                <h2 class="h4 card-title">
+                                    @report.ItemName
+                                </h2>
+
+                                <p class="card-text">
+                                    @report.Description
+                                </p>
+
+                                <p class="mb-2">
+                                    <strong>Bildirim numarası:</strong>
+                                    #@report.Id
+                                </p>
+
+                                <p class="mb-2">
+                                    <strong>Bildirim tarihi:</strong>
+                                    @report.ReportedAt.ToString("dd.MM.yyyy HH:mm")
+                                </p>
+
+                                <p class="mb-2">
+                                    <strong>Bulunduğu yer:</strong>
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                   report.LocationDescription))
+                                    {
+                                        @report.LocationDescription
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            Yazılı konum belirtilmedi.
+                                        </span>
+                                    }
+                                </p>
+
+                                <p class="mb-3">
+                                    <strong>İletişim:</strong>
+                                    @report.ContactInformation
+                                </p>
+
+                                <div class="d-flex flex-wrap gap-2">
+
+                                    @if (report.Latitude.HasValue &&
+                                   report.Longitude.HasValue)
+                                    {
+                                        string latitude =
+                                        report.Latitude.Value.ToString(
+                                        CultureInfo.InvariantCulture);
+
+                                        string longitude =
+                                        report.Longitude.Value.ToString(
+                                        CultureInfo.InvariantCulture);
+
+                                        string mapUrl =
+                                        $"https://www.google.com/maps/search/?api=1&query={latitude},{longitude}";
+
+                                        <a href="@mapUrl"
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           class="btn btn-outline-primary btn-sm">
+                                            Konumu Haritada Aç
+                                        </a>
+                                    }
+
+                                    <a asp-controller="FoundItemReports"
+                                       asp-action="ConvertToFoundItem"
+                                       asp-route-id="@report.Id"
+                                       class="btn btn-success btn-sm">
+                                        İlan Bilgilerini Tamamla
+                                    </a>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

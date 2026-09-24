@@ -1,0 +1,176 @@
+﻿@using System.Globalization
+@model IEnumerable<CampusLostAndFound.Models.FoundItemReport>
+
+@{
+    ViewData["Title"] = "Bekleyen Bildirimler";
+    string currentSort = ViewBag.CurrentSort as string ?? "newest";
+
+    string CampusAreaText(string? campusArea)
+    {
+        return campusArea switch
+        {
+            "Rektorluk" => "Rektörlük",
+            "Kutuphane" => "Kütüphane",
+            "Hastane" => "Hastane",
+            "AltGiris" => "Alt Giriş",
+            "SporTesisleri" => "Spor Tesisleri",
+            _ => campusArea ?? "Konum belirtilmedi"
+        };
+    }
+}
+
+<div class="pending-reports-page">
+    <header class="pending-reports-header">
+        <h1>Bekleyen Bildirimler</h1>
+        <p>
+            Ziyaretçiler tarafından gönderilen ve henüz güvenliğe
+            teslim edilmemiş eşya bildirimleri.
+        </p>
+    </header>
+
+    <div class="pending-reports-toolbar">
+        <div class="pending-count-badge">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 9a6 6 0 0 1 12 0c0 7 3 7 3 7H3s3 0 3-7Z" />
+                <path d="M10 20h4" />
+            </svg>
+            <span>@Model.Count() bekleyen bildirim</span>
+        </div>
+
+        <form asp-controller="FoundItemReports"
+              asp-action="Pending"
+              method="get"
+              class="pending-sort-form">
+            <label for="sort" class="visually-hidden">
+                Bildirimleri sırala
+            </label>
+
+            <select id="sort"
+                    name="sort"
+                    class="form-select"
+                    onchange="this.form.submit()">
+                @if (currentSort == "oldest")
+                {
+                    <option value="newest">En yeni önce</option>
+                    <option value="oldest" selected>En eski önce</option>
+                }
+                else
+                {
+                    <option value="newest" selected>En yeni önce</option>
+                    <option value="oldest">En eski önce</option>
+                }
+            </select>
+        </form>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="pending-empty-state">
+            <span class="pending-empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 9a6 6 0 0 1 12 0c0 7 3 7 3 7H3s3 0 3-7Z" />
+                    <path d="M10 20h4" />
+                </svg>
+            </span>
+            <h2>Bekleyen bildirim bulunmuyor</h2>
+            <p>Yeni bir ziyaretçi bildirimi geldiğinde burada görüntülenecek.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4 pending-report-grid">
+            @foreach (var report in Model)
+            {
+                string location =
+                !string.IsNullOrWhiteSpace(report.LocationDescription)
+                ? report.LocationDescription
+                : CampusAreaText(report.CampusArea);
+
+                <div class="col-xl-6">
+                    <article class="pending-report-card">
+                        <div class="pending-report-media">
+                            @if (!string.IsNullOrWhiteSpace(report.PhotoPath))
+                            {
+                                <img src="@report.PhotoPath"
+                                     alt="@report.ItemName" />
+                            }
+                            else
+                            {
+                                <div class="pending-photo-placeholder">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <rect x="3" y="5" width="18" height="14" rx="2" />
+                                        <circle cx="9" cy="10" r="2" />
+                                        <path d="m5 17 4-4 3 3 2-2 5 3" />
+                                    </svg>
+                                    <span>Fotoğraf bulunamadı</span>
+                                </div>
+                            }
+
+                        </div>
+
+                        <div class="pending-report-content">
+                            <div class="pending-report-main">
+                                <h2>@report.ItemName</h2>
+                                <p class="pending-report-description">
+                                    “@report.Description”
+                                </p>
+
+                                <div class="pending-report-details">
+                                    <div class="pending-detail-row">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <circle cx="12" cy="12" r="9" />
+                                            <path d="M12 7v5l3 2" />
+                                        </svg>
+                                        <span>@report.ReportedAt.ToString("dd.MM.yyyy HH:mm")</span>
+                                    </div>
+
+                                    <div class="pending-detail-row">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                                            <circle cx="12" cy="10" r="2.5" />
+                                        </svg>
+                                        <span>@location</span>
+                                    </div>
+
+                                    <div class="pending-detail-row">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M7 3h3l1.5 4-2 1.5a16 16 0 0 0 6 6l1.5-2 4 1.5v3a4 4 0 0 1-4 4C9.3 20 4 14.7 3 7a4 4 0 0 1 4-4Z" />
+                                        </svg>
+                                        <span>@report.ContactInformation</span>
+                                    </div>
+                                </div>
+
+                                @if (report.Latitude.HasValue &&
+                               report.Longitude.HasValue)
+                                {
+                                    string latitude = report.Latitude.Value.ToString(
+                                    CultureInfo.InvariantCulture);
+
+                                    string longitude = report.Longitude.Value.ToString(
+                                    CultureInfo.InvariantCulture);
+
+                                    string mapUrl =
+                                    $"https://www.google.com/maps/search/?api=1&query={latitude},{longitude}";
+
+                                    <a href="@mapUrl"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       class="pending-map-link">
+                                        Konumu Haritada Aç
+                                    </a>
+                                }
+                            </div>
+
+                            <a asp-controller="FoundItemReports"
+                               asp-action="Review"
+                               asp-route-id="@report.Id"
+                               class="btn pending-review-button">
+                                Bildirimi İncele
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            }
+        </div>
+    }
+</div>

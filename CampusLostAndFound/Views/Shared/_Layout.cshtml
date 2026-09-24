@@ -1,0 +1,411 @@
+﻿@{
+    bool fullWidth =
+        ViewData["FullWidth"] is bool value && value;
+
+    string pageBodyClass =
+        ViewData["BodyClass"]?.ToString() ?? string.Empty;
+
+    bool useSecurityLayout =
+        User.Identity?.IsAuthenticated == true &&
+        (User.IsInRole("Security") || User.IsInRole("Admin"));
+
+    bool useStudentLayout =
+    User.Identity?.IsAuthenticated == true &&
+    User.IsInRole("Student");
+
+    string currentController =
+        ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+
+    string currentAction =
+        ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
+
+    string dashboardClass =
+        currentController == "Dashboard" && currentAction == "Security"
+            ? "active" : string.Empty;
+
+    string reportsClass =
+        currentController == "FoundItemReports" ? "active" : string.Empty;
+
+    string foundItemsClass =
+        currentController == "FoundItems" &&
+        currentAction != "Create" &&
+        currentAction != "DeliveredItems"
+            ? "active" : string.Empty;
+
+    string claimsClass =
+        currentController == "OwnershipClaims" ? "active" : string.Empty;
+
+    string deliveredClass =
+        currentController == "FoundItems" && currentAction == "DeliveredItems"
+            ? "active" : string.Empty;
+
+    string createItemClass =
+        currentController == "FoundItems" && currentAction == "Create"
+            ? "active" : string.Empty;
+
+    string guideClass =
+        currentController == "Dashboard" && currentAction == "SecurityGuide"
+            ? "active" : string.Empty;
+
+    string studentDashboardClass =
+    currentController == "Dashboard" &&
+    currentAction == "Student"
+        ? "active" : string.Empty;
+
+    string studentFoundItemsClass =
+        currentController == "FoundItems"
+            ? "active" : string.Empty;
+
+    string studentClaimsClass =
+        currentController == "OwnershipClaims"
+            ? "active" : string.Empty;
+
+    string studentGuideClass =
+        currentController == "Dashboard" &&
+        currentAction == "StudentGuide"
+            ? "active" : string.Empty;
+
+    string adminClass =
+        currentController == "Admin" ? "active" : string.Empty;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - Kampüs Kayıp Eşya</title>
+
+    <script type="importmap"></script>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/CampusLostAndFound.styles.css"
+          asp-append-version="true" />
+</head>
+<body class="@(useSecurityLayout
+    ? "security-layout-body"
+    : useStudentLayout
+        ? "student-layout-body"
+        : string.Empty) @pageBodyClass">
+    @if (useSecurityLayout)
+    {
+        <div class="security-layout">
+            <aside class="security-sidebar">
+                <a class="security-sidebar-brand"
+                   asp-area=""
+                   asp-controller="Dashboard"
+                   asp-action="Security">
+
+                    <span class="security-sidebar-brand-icon security-shield-logo"
+                          aria-hidden="true">
+                        <svg viewBox="0 0 40 44">
+                            <path class="brand-shield"
+                                  d="M20 2 36 8v12.2C36 30.3 29.4 38.1 20 42 10.6 38.1 4 30.3 4 20.2V8L20 2Z" />
+
+                            <path class="brand-location"
+                                  d="M20 11.5a7.5 7.5 0 0 0-7.5 7.5c0 5.7 7.5 13 7.5 13s7.5-7.3 7.5-13a7.5 7.5 0 0 0-7.5-7.5Z" />
+
+                            <circle class="brand-location-dot"
+                                    cx="20"
+                                    cy="19"
+                                    r="2.6" />
+                        </svg>
+                    </span>
+
+                    <span class="security-brand-wordmark">
+                        <span>Kampüs</span>
+                        <span>Kayıp Eşya</span>
+                    </span>
+                </a>
+
+                <nav class="security-sidebar-nav" aria-label="Güvenlik menüsü">
+                    <a class="security-sidebar-link @dashboardClass"
+                       asp-controller="Dashboard"
+                       asp-action="Security">
+                        <span class="security-sidebar-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="4" y="4" width="6" height="6" rx="1" />
+                                <rect x="14" y="4" width="6" height="6" rx="1" />
+                                <rect x="4" y="14" width="6" height="6" rx="1" />
+                                <rect x="14" y="14" width="6" height="6" rx="1" />
+                            </svg>
+                        </span>
+                        <span>Genel Bakış</span>
+                    </a>
+
+                    <a class="security-sidebar-link @reportsClass"
+                       asp-controller="FoundItemReports"
+                       asp-action="Pending">
+                        <span class="security-sidebar-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M6 9a6 6 0 0 1 12 0c0 7 3 7 3 7H3s3 0 3-7Z" />
+                                <path d="M10 20h4" />
+                            </svg>
+                        </span>
+                        <span>Eşya Bildirimleri</span>
+                    </a>
+
+                    <a class="security-sidebar-link @foundItemsClass"
+                       asp-controller="FoundItems"
+                       asp-action="Index">
+                        <span class="security-sidebar-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M8 6h11M8 12h11M8 18h11" />
+                                <path d="M4 6h.01M4 12h.01M4 18h.01" />
+                            </svg>
+                        </span>
+                        <span>Bulunan Eşyalar</span>
+                    </a>
+
+                    <a class="security-sidebar-link @claimsClass"
+                       asp-controller="OwnershipClaims"
+                       asp-action="Manage">
+                        <span class="security-sidebar-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="8" />
+                                <path d="m9 12 2 2 4-4" />
+                            </svg>
+                        </span>
+                        <span>Sahiplik Talepleri</span>
+                    </a>
+
+                    <a class="security-sidebar-link @deliveredClass"
+                       asp-controller="FoundItems"
+                       asp-action="DeliveredItems">
+                        <span class="security-sidebar-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M4 7h16v13H4z" />
+                                <path d="M3 4h18v3H3zM9 11h6" />
+                            </svg>
+                        </span>
+                        <span>Teslim Edilenler</span>
+                    </a>
+
+                    <div class="security-sidebar-divider"></div>
+
+                    <a class="security-sidebar-link security-sidebar-primary @createItemClass"
+                       asp-controller="FoundItems"
+                       asp-action="Create">
+                        <span class="security-sidebar-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 5v14M5 12h14" />
+                            </svg>
+                        </span>
+                        <span>Yeni Eşya Kaydı</span>
+                    </a>
+
+                    <a class="security-sidebar-link @guideClass"
+                       asp-controller="Dashboard"
+                       asp-action="SecurityGuide">
+                        <span class="security-sidebar-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22V5.5Z" />
+                                <path d="M20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22V5.5Z" />
+                            </svg>
+                        </span>
+                        <span>Görevli Rehberi</span>
+                    </a>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a class="security-sidebar-link @adminClass"
+                           asp-controller="Admin"
+                           asp-action="Index">
+                            <span class="security-sidebar-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24">
+                                    <circle cx="9" cy="8" r="3" />
+                                    <path d="M3 20a6 6 0 0 1 12 0M17 8h4M19 6v4" />
+                                </svg>
+                            </span>
+                            <span>Kullanıcı Yönetimi</span>
+                        </a>
+                    }
+                </nav>
+
+                <div class="security-sidebar-user">
+                    <span class="security-user-avatar" aria-hidden="true">
+                        @(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "G")
+                    </span>
+                    <div class="security-user-copy">
+                        <span>@User.Identity?.Name</span>
+                        <small>@(User.IsInRole("Admin") ? "Admin" : "Güvenlik Görevlisi")</small>
+                    </div>
+
+                    <form asp-area="Identity"
+                          asp-page="/Account/Logout"
+                          asp-route-returnUrl="/"
+                          method="post">
+                        <button type="submit"
+                                class="security-logout-button"
+                                title="Çıkış Yap"
+                                aria-label="Çıkış Yap">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </aside>
+
+            <div class="security-layout-main">
+                <main role="main" class="security-main-content">
+                    @RenderBody()
+                </main>
+
+                <footer class="security-footer">
+                    &copy; 2026 Kampüs Kayıp Eşya
+                </footer>
+            </div>
+        </div>
+    }
+    else
+    {
+        <header>
+            <nav class="navbar navbar-expand-lg site-navbar">
+                <div class="container-xl">
+                    <a class="navbar-brand site-brand"
+                       asp-area=""
+                       asp-controller="Home"
+                       asp-action="Index">
+
+                        <span class="site-brand-icon brand-shield-logo" aria-hidden="true">
+                            <svg viewBox="0 0 40 44">
+                                <path class="brand-shield"
+                                      d="M20 2 36 8v12.2C36 30.3 29.4 38.1 20 42 10.6 38.1 4 30.3 4 20.2V8L20 2Z" />
+
+                                <path class="brand-location"
+                                      d="M20 11.5a7.5 7.5 0 0 0-7.5 7.5c0 5.7 7.5 13 7.5 13s7.5-7.3 7.5-13a7.5 7.5 0 0 0-7.5-7.5Z" />
+
+                                <circle class="brand-location-dot"
+                                        cx="20"
+                                        cy="19"
+                                        r="2.6" />
+                            </svg>
+                        </span>
+
+                        <span class="site-brand-wordmark">
+                            <span class="site-brand-wordmark-main">Kampüs</span>
+                            <span class="site-brand-wordmark-accent">Kayıp Eşya</span>
+                        </span>
+                    </a>
+
+                    <button class="navbar-toggler"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#mainNavbar"
+                            aria-controls="mainNavbar"
+                            aria-expanded="false"
+                            aria-label="Menüyü aç veya kapat">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div id="mainNavbar" class="navbar-collapse collapse">
+
+                        @if (useStudentLayout)
+                        {
+                            <ul class="navbar-nav student-navbar-menu">
+                                <li class="nav-item">
+                                    <a class="nav-link @studentDashboardClass"
+                                       asp-controller="Dashboard"
+                                       asp-action="Student">
+                                        Ana Sayfa
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link @studentFoundItemsClass"
+                                       asp-controller="FoundItems"
+                                       asp-action="Index">
+                                        Bulunan Eşyalar
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link @studentClaimsClass"
+                                       asp-controller="OwnershipClaims"
+                                       asp-action="MyClaims">
+                                        Taleplerim
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link @studentGuideClass"
+                                       asp-controller="Dashboard"
+                                       asp-action="StudentGuide">
+                                        Nasıl Çalışır?
+                                    </a>
+                                </li>
+                            </ul>
+
+                            <partial name="_LoginPartial" />
+                        }
+                        else if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <div class="ms-auto">
+                                <partial name="_LoginPartial" />
+                            </div>
+                        }
+                        else
+                        {
+                            <ul class="navbar-nav ms-auto align-items-lg-center public-navbar-links">
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                       asp-area=""
+                                       asp-controller="Home"
+                                       asp-action="Index"
+                                       asp-fragment="nasil-calisir">
+                                        Nasıl Çalışır?
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                       asp-area="Identity"
+                                       asp-page="/Account/Login">
+                                        Giriş Yap
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="btn navbar-register-button"
+                                       asp-area="Identity"
+                                       asp-page="/Account/Register">
+                                        Kayıt Ol
+                                    </a>
+                                </li>
+                            </ul>
+                        }
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <div class="page-content @(fullWidth ? "container-fluid px-0" : "container")">
+            <main role="main" class="@(fullWidth ? "pb-0" : "pb-3")">
+                @RenderBody()
+            </main>
+        </div>
+
+        <footer class="site-footer">
+            <div class="container-xl">
+                &copy; 2026 Kampüs Kayıp Eşya
+            </div>
+        </footer>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

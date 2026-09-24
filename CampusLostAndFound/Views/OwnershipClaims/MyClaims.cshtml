@@ -1,0 +1,317 @@
+﻿@model IEnumerable<CampusLostAndFound.Models.OwnershipClaim>
+
+@{
+    ViewData["Title"] = "Taleplerim";
+
+    var totalClaimCount = Model.Count();
+
+    var pendingClaimCount = Model.Count(x =>
+        x.Status == CampusLostAndFound.Models.ClaimStatus.Pending);
+
+    var completedClaimCount = Model.Count(x =>
+        x.Status != CampusLostAndFound.Models.ClaimStatus.Pending);
+}
+
+<section class="my-claims-page" data-my-claims-page>
+
+    <header class="my-claims-header">
+        <div class="my-claims-header-title">
+
+            <div class="my-claims-header-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="8" />
+                    <path d="m9 12 2 2 4-4" />
+                </svg>
+            </div>
+
+            <div>
+                <span class="my-claims-header-label">
+                    Talep Takibi
+                </span>
+
+                <h1>Sahiplik taleplerim</h1>
+
+                <p>
+                    Gönderdiğiniz taleplerin değerlendirme durumunu takip edin.
+                </p>
+            </div>
+        </div>
+
+        <div class="my-claims-summary">
+
+            <span class="my-claims-summary-item my-claims-summary-total">
+                <i aria-hidden="true"></i>
+                @totalClaimCount Toplam Talep
+            </span>
+
+            <span class="my-claims-summary-divider"></span>
+
+            <span class="my-claims-summary-item my-claims-summary-pending">
+                @pendingClaimCount Bekleyen
+            </span>
+
+            <span class="my-claims-summary-divider"></span>
+
+            <span class="my-claims-summary-item my-claims-summary-completed">
+                @completedClaimCount Sonuçlanan
+            </span>
+
+        </div>
+    </header>
+
+    @if (!Model.Any())
+    {
+        <div class="my-claims-empty-state">
+
+            <div class="my-claims-empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 11l2 2 4-4" />
+                    <path d="M6 3h12v18H6z" />
+                </svg>
+            </div>
+
+            <h2>Henüz talebiniz bulunmuyor</h2>
+
+            <p>
+                Bulunan eşyalar arasından size ait olduğunu düşündüğünüz
+                bir eşya için sahiplik talebi gönderebilirsiniz.
+            </p>
+
+        </div>
+    }
+    else
+    {
+        <div class="my-claims-list">
+
+            @foreach (var claim in Model)
+            {
+                string statusText = claim.Status switch
+                {
+                    CampusLostAndFound.Models.ClaimStatus.Pending
+                    => "Bekliyor",
+
+                    CampusLostAndFound.Models.ClaimStatus.Approved
+                    => "Kabul Edildi",
+
+                    CampusLostAndFound.Models.ClaimStatus.Rejected
+                    => "Reddedildi",
+
+                    CampusLostAndFound.Models.ClaimStatus.Closed
+                    => "Kapatıldı",
+
+                    _ => "Bilinmiyor"
+                };
+
+                string statusClass = claim.Status switch
+                {
+                    CampusLostAndFound.Models.ClaimStatus.Pending
+                    => "is-pending",
+
+                    CampusLostAndFound.Models.ClaimStatus.Approved
+                    => "is-approved",
+
+                    CampusLostAndFound.Models.ClaimStatus.Rejected
+                    => "is-rejected",
+
+                    CampusLostAndFound.Models.ClaimStatus.Closed
+                    => "is-closed",
+
+                    _ => "is-unknown"
+                };
+
+                <article class="my-claim-card"
+                         data-my-claim-card>
+
+                    <div class="my-claim-summary">
+
+                        <div class="my-claim-item">
+
+                            <span class="my-claim-item-icon"
+                                  aria-hidden="true">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M6 8h12l1 11H5L6 8Z" />
+                                    <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+                                </svg>
+                            </span>
+
+                            <div class="my-claim-item-copy">
+
+                                <h2>
+                                    @(claim.FoundItem?.Name
+                                        ?? "Eşya kaydı bulunamadı")
+                                </h2>
+
+                                <p>
+                                    <span>
+                                        Kategori:
+                                        @(claim.FoundItem?.Category ?? "-")
+                                    </span>
+
+                                    <i aria-hidden="true">•</i>
+
+                                    <span>
+                                        Renk:
+                                        @(claim.FoundItem?.Color ?? "-")
+                                    </span>
+                                </p>
+
+                            </div>
+                        </div>
+
+                        <div class="my-claim-date">
+                            <span>Talep Tarihi</span>
+
+                            <strong>
+                                @claim.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                            </strong>
+                        </div>
+
+                        <span class="my-claim-status @statusClass">
+                            <i aria-hidden="true"></i>
+                            @statusText
+                        </span>
+
+                        <button type="button"
+                                class="my-claim-toggle"
+                                data-my-claim-toggle
+                                aria-expanded="false"
+                                aria-controls="myClaimDetail-@claim.Id">
+
+                            <span>İncele</span>
+
+                            <svg viewBox="0 0 24 24"
+                                 aria-hidden="true">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                    <div id="myClaimDetail-@claim.Id"
+                         class="my-claim-detail"
+                         data-my-claim-detail
+                         hidden>
+
+                        <div class="my-claim-detail-inner">
+
+                            <div class="my-claim-detail-heading">
+
+                                <div>
+                                    <span>Eşya Bilgileri</span>
+                                    <h3>
+                                        @(claim.FoundItem?.Name
+                                            ?? "Eşya kaydı bulunamadı")
+                                    </h3>
+                                </div>
+
+                                <span class="my-claim-detail-status @statusClass">
+                                    @statusText
+                                </span>
+
+                            </div>
+
+                            <div class="my-claim-detail-grid">
+
+                                <div class="my-claim-detail-field">
+                                    <span>Kategori</span>
+                                    <strong>
+                                        @(claim.FoundItem?.Category ?? "-")
+                                    </strong>
+                                </div>
+
+                                <div class="my-claim-detail-field">
+                                    <span>Renk</span>
+                                    <strong>
+                                        @(claim.FoundItem?.Color ?? "-")
+                                    </strong>
+                                </div>
+
+                                <div class="my-claim-detail-field">
+                                    <span>Bulunduğu Bina</span>
+                                    <strong>
+                                        @(claim.FoundItem?.Building ?? "-")
+                                    </strong>
+                                </div>
+
+                                <div class="my-claim-detail-field">
+                                    <span>Bulunduğu Yer</span>
+                                    <strong>
+                                        @(claim.FoundItem?.FoundLocation ?? "-")
+                                    </strong>
+                                </div>
+
+                                <div class="my-claim-detail-field">
+                                    <span>Bulunma Tarihi ve Saati</span>
+                                    <strong>
+                                        @(claim.FoundItem == null
+                                            ? "-"
+                                            : claim.FoundItem.FoundDate
+                                            .ToString("dd.MM.yyyy HH:mm"))
+                                    </strong>
+                                </div>
+
+                                <div class="my-claim-detail-field">
+                                    <span>Talep Tarihi</span>
+                                    <strong>
+                                        @claim.CreatedAt.ToString(
+                                                 "dd.MM.yyyy HH:mm")
+                                    </strong>
+                                </div>
+
+                            </div>
+
+                            <div class="my-claim-description">
+
+                                <span>Herkese Açık Eşya Açıklaması</span>
+
+                                <p>
+                                    @(string.IsNullOrWhiteSpace(
+                                        claim.FoundItem?.PublicDescription)
+                                        ? "Açıklama belirtilmemiş."
+                                        : claim.FoundItem.PublicDescription)
+                                </p>
+
+                            </div>
+
+                            <div class="my-claim-request-information">
+
+                                <div class="my-claim-student-proof">
+
+                                    <span>
+                                        Talebinizde Verdiğiniz Bilgi
+                                    </span>
+
+                                    <p>
+                                        @(string.IsNullOrWhiteSpace(
+                                            claim.ProofDescription)
+                                            ? "Açıklama belirtilmemiş."
+                                            : claim.ProofDescription)
+                                    </p>
+
+                                </div>
+
+                                <div class="my-claim-review-note">
+
+                                    <span>Görevli Notu</span>
+
+                                    <p>
+                                        @(string.IsNullOrWhiteSpace(
+                                            claim.ReviewNote)
+                                            ? "Henüz görevli notu bulunmuyor."
+                                            : claim.ReviewNote)
+                                    </p>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </article>
+            }
+
+        </div>
+    }
+
+</section>

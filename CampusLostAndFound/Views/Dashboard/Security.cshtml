@@ -1,0 +1,193 @@
+﻿@model IEnumerable<CampusLostAndFound.Models.FoundItemReport>
+
+@{
+    ViewData["Title"] = "Güvenlik Paneli";
+
+    string CampusAreaText(string? campusArea)
+    {
+        return campusArea switch
+        {
+            "Rektorluk" => "Rektörlük",
+            "Kutuphane" => "Kütüphane",
+            "Hastane" => "Hastane",
+            "AltGiris" => "Alt Giriş",
+            "SporTesisleri" => "Spor Tesisleri",
+            _ => campusArea ?? "-"
+        };
+    }
+}
+
+<div class="security-dashboard">
+    <header class="security-page-header">
+        <div>
+            <h1 class="security-panel-heading-badge">Güvenlik Paneli</h1>
+            <p>Hoş geldiniz, @User.Identity?.Name</p>
+        </div>
+    </header>
+
+    <section class="security-notification-banner">
+        <span class="security-notification-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+                <path d="M6 9a6 6 0 0 1 12 0c0 7 3 7 3 7H3s3 0 3-7Z" />
+                <path d="M10 20h4" />
+            </svg>
+        </span>
+
+        <div class="security-notification-copy">
+            <strong>@ViewBag.PendingReportCount bekleyen bildirim var</strong>
+            <span>Ziyaretçilerin gönderdiği eşya bildirimlerini inceleyin.</span>
+        </div>
+
+        <div class="security-banner-actions">
+            <a asp-controller="FoundItemReports"
+               asp-action="Received"
+               class="btn security-received-button">
+                Teslim Alınanlar
+            </a>
+
+            <a asp-controller="FoundItemReports"
+               asp-action="Pending"
+               class="btn security-warning-button">
+                Bildirimleri Gör
+            </a>
+        </div>
+    </section>
+
+    <section class="row g-4 security-stat-row">
+        <div class="col-md-4">
+            <article class="security-stat-card security-stat-blue">
+                <div class="security-stat-top">
+                    <h2>Bulunan Eşyalar</h2>
+                    <span class="security-stat-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M8 6h11M8 12h11M8 18h11" />
+                            <path d="M4 6h.01M4 12h.01M4 18h.01" />
+                        </svg>
+                    </span>
+                </div>
+
+                <div class="security-stat-number">@ViewBag.ActiveItemCount</div>
+                <p>Henüz sahibine teslim edilmemiş eşyalar.</p>
+
+                <a asp-controller="FoundItems"
+                   asp-action="Index"
+                   class="btn security-card-button">
+                    Eşyaları Gör
+                </a>
+            </article>
+        </div>
+
+        <div class="col-md-4">
+            <article class="security-stat-card security-stat-navy">
+                <div class="security-stat-top">
+                    <h2>Sahiplik Talepleri</h2>
+                    <span class="security-stat-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="8" />
+                            <path d="m9 12 2 2 4-4" />
+                        </svg>
+                    </span>
+                </div>
+
+                <div class="security-stat-number">@ViewBag.PendingClaimCount</div>
+                <p>Öğrenciler tarafından gönderilen bekleyen talepler.</p>
+
+                <a asp-controller="OwnershipClaims"
+                   asp-action="Manage"
+                   class="btn security-card-button">
+                    Talepleri Gör
+                </a>
+            </article>
+        </div>
+
+        <div class="col-md-4">
+            <article class="security-stat-card security-stat-soft">
+                <div class="security-stat-top">
+                    <h2>Teslim Edilenler</h2>
+                    <span class="security-stat-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M4 7h16v13H4z" />
+                            <path d="M3 4h18v3H3zM9 11h6" />
+                        </svg>
+                    </span>
+                </div>
+
+                <div class="security-stat-number">@ViewBag.DeliveredItemCount</div>
+                <p>Sahiplerine teslim edilen eşya kayıtları.</p>
+
+                <a asp-controller="FoundItems"
+                   asp-action="DeliveredItems"
+                   class="btn security-card-button">
+                    Arşivi Gör
+                </a>
+            </article>
+        </div>
+    </section>
+
+    <section class="security-recent-section">
+        <div class="security-section-heading">
+            <h2>Son Bildirimler</h2>
+            <a asp-controller="FoundItemReports"
+               asp-action="Pending">
+                Tümünü Gör
+            </a>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="security-empty-state">
+                Bekleyen veya teslim alınan bir eşya bildirimi bulunmuyor.
+            </div>
+        }
+        else
+        {
+            <div class="security-table-wrapper">
+                <table class="table security-report-table">
+                    <thead>
+                        <tr>
+                            <th>Eşya</th>
+                            <th>Bildiren</th>
+                            <th>Konum</th>
+                            <th>Tarih</th>
+                            <th><span class="visually-hidden">İşlem</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var report in Model)
+                        {
+                            string location =
+                            !string.IsNullOrWhiteSpace(report.LocationDescription)
+                            ? report.LocationDescription
+                            : CampusAreaText(report.CampusArea);
+
+                            <tr>
+                                <td>
+                                    <div class="security-item-name">
+                                        <span class="security-item-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M6 8h12v10H6z" />
+                                                <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+                                            </svg>
+                                        </span>
+                                        <span>@report.ItemName</span>
+                                    </div>
+                                </td>
+                                <td>Ziyaretçi</td>
+                                <td>@location</td>
+                                <td>@report.ReportedAt.ToString("dd.MM.yyyy")</td>
+                                <td class="text-end">
+                                    <a asp-controller="FoundItemReports"
+                                       asp-action="Review"
+                                       asp-route-id="@report.Id"
+                                       class="btn security-review-button">
+                                        İncele
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>

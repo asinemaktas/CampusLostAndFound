@@ -1,0 +1,189 @@
+﻿@model CampusLostAndFound.ViewModels.FoundItemReportConvertViewModel
+
+@{
+    ViewData["Title"] = "Eşya İlanını Tamamla";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+                <h1 class="mb-2">
+                    Eşya İlanını Tamamla
+                </h1>
+
+                <p class="text-muted">
+                    Bildirim numarası:
+                    <strong>#@Model.ReportId</strong>
+                </p>
+
+                <div class="alert alert-info">
+                    Ziyaretçinin gönderdiği bilgileri kontrol edin.
+                    Öğrencilerin göreceği ilan bilgilerini ve yalnızca
+                    gerçek eşya sahibinin bilebileceği gizli bilgiyi
+                    tamamlayın.
+                </div>
+
+                <form asp-action="ConvertToFoundItem"
+                      method="post">
+
+                    <input asp-for="ReportId"
+                           type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name"
+                               class="form-label"></label>
+
+                        <input asp-for="Name"
+                               class="form-control" />
+
+                        <span asp-validation-for="Name"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Category"
+                               class="form-label"></label>
+
+                        <select asp-for="Category"
+                                class="form-select">
+                            <option value="">
+                                Kategori seçiniz
+                            </option>
+                            <option value="Cüzdan">
+                                Cüzdan
+                            </option>
+                            <option value="Anahtar">
+                                Anahtar
+                            </option>
+                            <option value="Elektronik">
+                                Elektronik
+                            </option>
+                            <option value="Kart/Belge">
+                                Kart / Belge
+                            </option>
+                            <option value="Çanta">
+                                Çanta
+                            </option>
+                            <option value="Kıyafet">
+                                Kıyafet
+                            </option>
+                            <option value="Diğer">
+                                Diğer
+                            </option>
+                        </select>
+
+                        <span asp-validation-for="Category"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Color"
+                               class="form-label"></label>
+
+                        <input asp-for="Color"
+                               class="form-control"
+                               placeholder="Örneğin: Siyah" />
+
+                        <span asp-validation-for="Color"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Building"
+                               class="form-label"></label>
+
+                        <input asp-for="Building"
+                               class="form-control"
+                               placeholder="Örneğin: Merkez Kütüphane" />
+
+                        <span asp-validation-for="Building"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="FoundLocation"
+                               class="form-label"></label>
+
+                        <input asp-for="FoundLocation"
+                               class="form-control"
+                               placeholder="Örneğin: İkinci kat çalışma salonu" />
+
+                        <span asp-validation-for="FoundLocation"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="FoundDate"
+                               class="form-label"></label>
+
+                        <input asp-for="FoundDate"
+                               asp-format="{0:yyyy-MM-ddTHH:mm}"
+                               type="datetime-local"
+                               class="form-control" />
+
+                        <span asp-validation-for="FoundDate"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PublicDescription"
+                               class="form-label"></label>
+
+                        <textarea asp-for="PublicDescription"
+                                  class="form-control"
+                                  rows="3"></textarea>
+
+                        <span asp-validation-for="PublicDescription"
+                              class="text-danger"></span>
+
+                        <div class="form-text">
+                            Bu açıklama bulunan eşyaları inceleyen
+                            öğrenciler tarafından görülebilir.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="SecretDetail"
+                               class="form-label"></label>
+
+                        <textarea asp-for="SecretDetail"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Örneğin: Sağ kulaklığın iç kısmında küçük bir çizik bulunuyor."></textarea>
+
+                        <span asp-validation-for="SecretDetail"
+                              class="text-danger"></span>
+
+                        <div class="form-text">
+                            Bu bilgi öğrencilere gösterilmez.
+                            Sahiplik talebini doğrularken kullanılır.
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-success">
+                        İlanı Oluştur ve Yayımla
+                    </button>
+
+                    <a asp-action="Review"
+                       asp-route-id="@Model.ReportId"
+                       class="btn btn-secondary">
+                        Bildirime Dön
+                    </a>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

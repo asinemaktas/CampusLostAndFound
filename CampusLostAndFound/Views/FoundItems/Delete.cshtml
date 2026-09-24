@@ -1,0 +1,150 @@
+﻿@model CampusLostAndFound.Models.FoundItem
+
+@{
+    ViewData["Title"] = "Eşya Kaydını Sil";
+
+    int pendingClaimCount = Convert.ToInt32(
+        ViewBag.PendingClaimCount ?? 0);
+
+    int daysSinceFound = Math.Max(
+        0,
+        (DateTime.Today - Model.FoundDate.Date).Days);
+
+    string foundDurationText = daysSinceFound == 0
+        ? "Bugün bulundu"
+        : $"{daysSinceFound} gün önce bulundu";
+}
+
+<div class="found-item-delete-page">
+    <nav class="found-item-delete-breadcrumb" aria-label="Sayfa yolu">
+        <span>Yönetim</span>
+        <span aria-hidden="true">›</span>
+        <a asp-action="Index">Bulunan Eşyalar</a>
+        <span aria-hidden="true">›</span>
+        <strong>Silme Onayı</strong>
+    </nav>
+
+    <header class="found-item-delete-header">
+        <h1>Eşya Kaydını Sil</h1>
+    </header>
+
+    <div class="found-item-delete-summary">
+        <article class="found-item-delete-summary-card is-claim-card">
+            <div>
+                <span>Bağlantılı Talep</span>
+                <strong>@pendingClaimCount Bekleyen Talep</strong>
+                <p>
+                    @(pendingClaimCount == 0
+                        ? "Bekleyen sahiplik talebi bulunmuyor."
+                        : "Silmeden önce bekleyen talepleri inceleyin.")
+                </p>
+            </div>
+
+            <span class="found-item-delete-summary-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 3 20 6v5c0 5-3.4 8.3-8 10-4.6-1.7-8-5-8-10V6l8-3Z" />
+                    <path d="m9 12 2 2 4-4" />
+                </svg>
+            </span>
+        </article>
+
+        <article class="found-item-delete-summary-card is-time-card">
+            <div>
+                <span>Bulunma Süresi</span>
+                <strong>@foundDurationText</strong>
+                <p>Bulunma tarihi: @Model.FoundDate.ToString("dd.MM.yyyy")</p>
+            </div>
+
+            <span class="found-item-delete-summary-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v5l3 2" />
+                </svg>
+            </span>
+        </article>
+    </div>
+
+    <section class="found-item-delete-warning" role="alert">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10.3 4.2 2.6 18a2 2 0 0 0 1.8 3h15.2a2 2 0 0 0 1.8-3L13.7 4.2a2 2 0 0 0-3.4 0Z" />
+            <path d="M12 9v4M12 17h.01" />
+        </svg>
+
+        <div>
+            <h2>Bu eşya kaydını silmek istediğinizden emin misiniz?</h2>
+            <p>
+                Bu işlem eşya kaydını veritabanından kalıcı olarak siler.
+                Silinen kayıt geri alınamaz.
+            </p>
+        </div>
+    </section>
+
+    <section class="found-item-delete-details-card">
+        <div class="found-item-delete-card-heading">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 3h9l4 4v14H6V3Z" />
+                <path d="M15 3v5h5" />
+            </svg>
+            <h2>Silinecek Eşya Kartı Detayları</h2>
+            <span>#@Model.Id</span>
+        </div>
+
+        <div class="found-item-delete-detail-grid">
+            <div class="found-item-delete-detail">
+                <span>Eşya Adı</span>
+                <strong>@Model.Name</strong>
+            </div>
+
+            <div class="found-item-delete-detail">
+                <span>Kategori</span>
+                <strong>@Model.Category</strong>
+            </div>
+
+            <div class="found-item-delete-detail">
+                <span>Renk</span>
+                <strong class="found-item-delete-color">
+                    <i aria-hidden="true"></i>
+                    @Model.Color
+                </strong>
+            </div>
+
+            <div class="found-item-delete-detail">
+                <span>Bulunduğu Bina</span>
+                <strong>@Model.Building</strong>
+            </div>
+
+            <div class="found-item-delete-detail">
+                <span>Bulunduğu Yer</span>
+                <strong>@Model.FoundLocation</strong>
+            </div>
+
+            <div class="found-item-delete-detail">
+                <span>Bulunma Tarihi ve Saati</span>
+                <strong>@Model.FoundDate.ToString("dd.MM.yyyy HH:mm")</strong>
+            </div>
+
+            <div class="found-item-delete-detail found-item-delete-detail-wide">
+                <span>Herkese Açık Açıklama</span>
+                <p>@Model.PublicDescription</p>
+            </div>
+        </div>
+    </section>
+
+    <form asp-action="Delete"
+          method="post"
+          class="found-item-delete-actions">
+        <input type="hidden" asp-for="Id" />
+
+        <a asp-action="Index" class="btn found-item-delete-back-button">
+            <span aria-hidden="true">←</span>
+            Listeye Dön
+        </a>
+
+        <button type="submit" class="btn found-item-delete-submit-button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5" />
+            </svg>
+            Kaydı Sil
+        </button>
+    </form>
+</div>

@@ -1,0 +1,564 @@
+﻿@model CampusLostAndFound.ViewModels.FoundItemReportCreateViewModel
+
+@{
+    ViewData["Title"] = "Eşya Buldum";
+    ViewData["FullWidth"] = true;
+
+    bool HasErrors(string key)
+    {
+        return ViewData.ModelState.TryGetValue(key, out var entry) &&
+               entry.Errors.Count > 0;
+    }
+
+    int initialStep = 1;
+
+    if (ViewData.ModelState.ErrorCount > 0)
+    {
+        if (HasErrors("ItemName") || HasErrors("Description"))
+        {
+            initialStep = 1;
+        }
+        else if (HasErrors("Photo"))
+        {
+            initialStep = 2;
+        }
+        else if (HasErrors("LocationDescription") ||
+                 HasErrors("CampusArea") ||
+                 HasErrors("Latitude") ||
+                 HasErrors("Longitude") ||
+                 HasErrors(string.Empty))
+        {
+            initialStep = 3;
+        }
+        else if (HasErrors("ContactInformation"))
+        {
+            initialStep = 4;
+        }
+    }
+}
+
+<section class="found-report-create-page">
+    <div class="found-report-create-shell">
+
+        <header class="found-report-create-header">
+            <h1>Eşya Buldum</h1>
+            <p>
+                Bulduğunuz eşyanın fotoğrafını ve bulunduğu yeri güvenlik birimine
+                bildirebilirsiniz. Bildirim, eşya güvenliğe teslim edilene kadar yayımlanmaz.
+            </p>
+        </header>
+
+        <div class="found-report-stepper" aria-label="Bildirim adımları">
+            <div class="found-report-step" data-step-indicator="1">
+                <span class="found-report-step-circle">
+                    <span class="found-report-step-number">1</span>
+                    <svg class="found-report-step-check" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m6.5 12.5 3.5 3.5 7.5-8" />
+                    </svg>
+                </span>
+                <span class="found-report-step-label">Eşya Bilgisi</span>
+            </div>
+
+            <div class="found-report-step" data-step-indicator="2">
+                <span class="found-report-step-circle">
+                    <span class="found-report-step-number">2</span>
+                    <svg class="found-report-step-check" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m6.5 12.5 3.5 3.5 7.5-8" />
+                    </svg>
+                </span>
+                <span class="found-report-step-label">Fotoğraf</span>
+            </div>
+
+            <div class="found-report-step" data-step-indicator="3">
+                <span class="found-report-step-circle">
+                    <span class="found-report-step-number">3</span>
+                    <svg class="found-report-step-check" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m6.5 12.5 3.5 3.5 7.5-8" />
+                    </svg>
+                </span>
+                <span class="found-report-step-label">Konum</span>
+            </div>
+
+            <div class="found-report-step" data-step-indicator="4">
+                <span class="found-report-step-circle">
+                    <span class="found-report-step-number">4</span>
+                    <svg class="found-report-step-check" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m6.5 12.5 3.5 3.5 7.5-8" />
+                    </svg>
+                </span>
+                <span class="found-report-step-label">İletişim</span>
+            </div>
+        </div>
+
+        <form asp-action="Create"
+              method="post"
+              enctype="multipart/form-data"
+              id="foundItemReportForm"
+              class="found-report-form-card"
+              data-initial-step="@initialStep">
+
+            <div asp-validation-summary="ModelOnly"
+                 class="found-report-validation-summary"
+                 role="alert">
+            </div>
+
+            <section class="found-report-panel" data-step-panel="1">
+                <div class="found-report-panel-heading">
+                    <h2>Bulduğunuz eşyayı tanımlayın</h2>
+                    <p>Eşyayı doğru tanımlayabilmek için temel ayrıntıları eksiksiz doldurun.</p>
+                </div>
+
+                <div class="found-report-field">
+                    <label asp-for="ItemName" class="form-label"></label>
+                    <input asp-for="ItemName"
+                           class="form-control"
+                           placeholder="Örneğin: Cüzdan, anahtar, kulaklık" />
+                    <span asp-validation-for="ItemName" class="text-danger"></span>
+                </div>
+
+                <div class="found-report-field">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Eşyanın bulunduğu andaki görünümünü kısaca açıklayın."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </section>
+
+            <section class="found-report-panel" data-step-panel="2" hidden>
+                <div class="found-report-panel-heading">
+                    <h2>Eşyanın fotoğrafını ekleyin</h2>
+                    <p>Eşyanın bulunduğu andaki görünümünü net biçimde gösteren bir fotoğraf yükleyin.</p>
+                </div>
+
+                <div class="found-report-field">
+                    <label asp-for="Photo" class="form-label"></label>
+
+                    <label class="found-report-upload-zone" id="photoDropZone" for="Photo">
+                        <input asp-for="Photo"
+                               type="file"
+                               accept="image/jpeg,image/png,image/webp"
+                               capture="environment"
+                               class="found-report-photo-input"
+                               onchange="showPhotoPreview(event)" />
+
+                        <span class="found-report-upload-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5" />
+                                <path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
+                            </svg>
+                        </span>
+
+                        <span class="found-report-upload-title">
+                            <strong>Dosya seçin</strong> veya sürükleyip bırakın
+                        </span>
+                        <span class="found-report-upload-copy">
+                            JPG, PNG veya WEBP · en fazla 5 MB
+                        </span>
+                        <span class="found-report-upload-mobile-copy">
+                            Fotoğraf çekebilir veya galerinizden seçebilirsiniz.
+                        </span>
+                    </label>
+
+                    <span asp-validation-for="Photo" class="text-danger"></span>
+
+                    <div class="found-report-photo-preview d-none" id="photoPreviewWrapper">
+                        <img id="photoPreview"
+                             alt="Seçilen fotoğrafın ön izlemesi" />
+                        <div>
+                            <strong id="photoFileName">Seçilen fotoğraf</strong>
+                            <span>Fotoğraf bildirime eklenecek.</span>
+                        </div>
+                        <button type="button"
+                                class="found-report-remove-photo"
+                                onclick="removeSelectedPhoto()">
+                            Kaldır
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="found-report-panel" data-step-panel="3" hidden>
+                <div class="found-report-panel-heading">
+                    <h2>Eşyanın bulunduğu yer</h2>
+                    <p>Eşyayı teslim aldığınız veya bulduğunuz yerleşke ayrıntılarını belirtin.</p>
+                </div>
+
+                <div class="found-report-field">
+                    <label asp-for="LocationDescription" class="form-label"></label>
+                    <input asp-for="LocationDescription"
+                           class="form-control"
+                           placeholder="Örneğin: Yemekhane giriş katı" />
+                    <span asp-validation-for="LocationDescription" class="text-danger"></span>
+                    <div class="form-text">
+                        Eşyanın bulunduğu yeri biliyorsanız kısa bir açıklama yazabilirsiniz.
+                    </div>
+                </div>
+
+                <div class="found-report-field">
+                    <label asp-for="CampusArea" class="form-label"></label>
+                    <select asp-for="CampusArea" class="form-select">
+                        <option value="">Kampüs bölgesi seçiniz</option>
+                        <option value="Rektorluk">Rektörlük çevresi</option>
+                        <option value="Kutuphane">Kütüphane ve merkezi derslikler</option>
+                        <option value="Hastane">Hastane çevresi</option>
+                        <option value="AltGiris">Alt giriş çevresi</option>
+                        <option value="SporTesisleri">Spor tesisleri ve kapalı yüzme havuzu çevresi</option>
+                    </select>
+                    <span asp-validation-for="CampusArea" class="text-danger"></span>
+                    <div class="form-text">
+                        Konumunuzu kullanmak istemiyorsanız bulunduğunuz kampüs bölgesini seçin.
+                        Buna göre uygun güvenlik noktası önerilecektir.
+                    </div>
+                </div>
+
+                <div class="found-report-location-card">
+                    <span class="found-report-location-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                            <circle cx="12" cy="10" r="2.5" />
+                        </svg>
+                    </span>
+
+                    <div class="found-report-location-copy">
+                        <h3>Anlık Konum</h3>
+                        <p>Bulunduğunuz yeri bilmiyorsanız konumunuzu güvenlik birimine iletebilirsiniz.</p>
+                        <span id="locationMessage">Henüz konum eklenmedi.</span>
+                    </div>
+
+                    <button type="button"
+                            id="locationButton"
+                            class="found-report-location-button"
+                            onclick="getCurrentLocation()">
+                        Konumumu Kullan
+                    </button>
+
+                    <input asp-for="Latitude" type="hidden" />
+                    <input asp-for="Longitude" type="hidden" />
+                </div>
+
+                <span id="locationClientError" class="text-danger found-report-location-error"></span>
+            </section>
+
+            <section class="found-report-panel" data-step-panel="4" hidden>
+                <div class="found-report-panel-heading">
+                    <h2>İletişim ve güvenlik doğrulaması</h2>
+                    <p>Eşyayı güvenliğe teslim edebilmeniz veya gerektiğinde size ulaşılabilmesi için bilgilerinizi kontrol edin.</p>
+                </div>
+
+                <div class="found-report-field">
+                    <label asp-for="ContactInformation" class="form-label"></label>
+                    <input asp-for="ContactInformation"
+                           class="form-control"
+                           placeholder="Telefon numaranız veya e-posta adresiniz" />
+                    <span asp-validation-for="ContactInformation" class="text-danger"></span>
+                    <div class="form-text">
+                        Güvenlik birimi gerektiğinde verdiğiniz iletişim bilgisi üzerinden sizinle iletişim kurabilir.
+                    </div>
+                </div>
+
+                <div class="found-report-privacy-note">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 10v6M12 7h.01" />
+                    </svg>
+                    <span>
+                        Fotoğrafta kimlik numarası, banka kartı bilgisi veya başka kişisel bilgilerin
+                        görünmediğinden emin olun.
+                    </span>
+                </div>
+            </section>
+
+            <div class="found-report-actions">
+                <button type="button"
+                        id="previousStepButton"
+                        class="found-report-button found-report-button-secondary">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    Geri
+                </button>
+
+                <div class="found-report-actions-right">
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       id="cancelReportButton"
+                       class="found-report-cancel-link">
+                        Vazgeç
+                    </a>
+
+                    <button type="button"
+                            id="nextStepButton"
+                            class="found-report-button found-report-button-primary">
+                        Devam Et
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m9 18 6-6-6-6" />
+                        </svg>
+                    </button>
+
+                    <button type="submit"
+                            id="submitReportButton"
+                            class="found-report-button found-report-button-primary"
+                            hidden>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m6.5 12.5 3.5 3.5 7.5-8" />
+                        </svg>
+                        Bildirimi Gönder
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="found-report-security-note">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3 19 6v5.5c0 4.4-2.8 7.8-7 9.5-4.2-1.7-7-5.1-7-9.5V6l7-3Z" />
+                <path d="m9 12 2 2 4-4" />
+            </svg>
+            Tüm eşya bildirimleri 256-bit SSL güvencesiyle doğrudan kampüs güvenlik merkezine iletilir.
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (() => {
+            const form = document.getElementById("foundItemReportForm");
+            const panels = Array.from(document.querySelectorAll("[data-step-panel]"));
+            const indicators = Array.from(document.querySelectorAll("[data-step-indicator]"));
+            const previousButton = document.getElementById("previousStepButton");
+            const nextButton = document.getElementById("nextStepButton");
+            const submitButton = document.getElementById("submitReportButton");
+            const cancelButton = document.getElementById("cancelReportButton");
+            const totalSteps = panels.length;
+            let currentStep = Number(form.dataset.initialStep) || 1;
+
+            const stepFields = {
+                1: ["ItemName", "Description"],
+                2: ["Photo"],
+                3: ["LocationDescription", "CampusArea", "Latitude", "Longitude"],
+                4: ["ContactInformation"]
+            };
+
+            function showStep(step) {
+                currentStep = Math.min(Math.max(step, 1), totalSteps);
+
+                panels.forEach(panel => {
+                    const panelStep = Number(panel.dataset.stepPanel);
+                    panel.hidden = panelStep !== currentStep;
+                });
+
+                indicators.forEach(indicator => {
+                    const indicatorStep = Number(indicator.dataset.stepIndicator);
+                    indicator.classList.toggle("is-active", indicatorStep === currentStep);
+                    indicator.classList.toggle("is-complete", indicatorStep < currentStep);
+
+                    if (indicatorStep === currentStep) {
+                        indicator.setAttribute("aria-current", "step");
+                    } else {
+                        indicator.removeAttribute("aria-current");
+                    }
+                });
+
+                previousButton.style.visibility = currentStep === 1 ? "hidden" : "visible";
+                nextButton.hidden = currentStep === totalSteps;
+                submitButton.hidden = currentStep !== totalSteps;
+                cancelButton.hidden = currentStep !== totalSteps;
+
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+
+            function setValidationMessage(fieldName, message) {
+                const messageElement = form.querySelector(`[data-valmsg-for="${fieldName}"]`);
+
+                if (!messageElement) {
+                    return;
+                }
+
+                messageElement.textContent = message;
+                messageElement.classList.toggle("field-validation-error", Boolean(message));
+                messageElement.classList.toggle("field-validation-valid", !message);
+            }
+
+            function validateWithUnobtrusiveValidation(field) {
+                if (window.jQuery && typeof window.jQuery(field).valid === "function") {
+                    return window.jQuery(field).valid();
+                }
+
+                return field.checkValidity();
+            }
+
+            function validateCurrentStep() {
+                let isValid = true;
+
+                if (currentStep === 2) {
+                    const photoInput = document.getElementById("Photo");
+                    const photo = photoInput.files[0];
+
+                    if (!photo) {
+                        setValidationMessage("Photo", "Eşyanın fotoğrafını yüklemelisiniz.");
+                        isValid = false;
+                    } else if (photo.size > 5 * 1024 * 1024) {
+                        setValidationMessage("Photo", "Fotoğraf en fazla 5 MB olabilir.");
+                        isValid = false;
+                    } else {
+                        setValidationMessage("Photo", "");
+                    }
+
+                    return isValid;
+                }
+
+                if (currentStep === 3) {
+                    const locationDescription = document.getElementById("LocationDescription").value.trim();
+                    const latitude = document.getElementById("Latitude").value;
+                    const longitude = document.getElementById("Longitude").value;
+                    const locationError = document.getElementById("locationClientError");
+
+                    if (!locationDescription && (!latitude || !longitude)) {
+                        locationError.textContent =
+                            "Bulunduğu yeri yazmalı veya anlık konumunuzu eklemelisiniz.";
+                        isValid = false;
+                    } else {
+                        locationError.textContent = "";
+                    }
+
+                    return isValid;
+                }
+
+                stepFields[currentStep].forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+
+                    if (field && !validateWithUnobtrusiveValidation(field)) {
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            }
+
+            previousButton.addEventListener("click", () => showStep(currentStep - 1));
+
+            nextButton.addEventListener("click", () => {
+                if (validateCurrentStep()) {
+                    showStep(currentStep + 1);
+                }
+            });
+
+            form.addEventListener("submit", event => {
+                if (currentStep < totalSteps) {
+                    event.preventDefault();
+
+                    if (validateCurrentStep()) {
+                        showStep(currentStep + 1);
+                    }
+
+                    return;
+                }
+
+                if (!validateCurrentStep()) {
+                    event.preventDefault();
+                }
+            });
+
+            const dropZone = document.getElementById("photoDropZone");
+            const photoInput = document.getElementById("Photo");
+
+            ["dragenter", "dragover"].forEach(eventName => {
+                dropZone.addEventListener(eventName, event => {
+                    event.preventDefault();
+                    dropZone.classList.add("is-dragging");
+                });
+            });
+
+            ["dragleave", "drop"].forEach(eventName => {
+                dropZone.addEventListener(eventName, event => {
+                    event.preventDefault();
+                    dropZone.classList.remove("is-dragging");
+                });
+            });
+
+            dropZone.addEventListener("drop", event => {
+                const files = event.dataTransfer.files;
+
+                if (!files.length) {
+                    return;
+                }
+
+                const transfer = new DataTransfer();
+                transfer.items.add(files[0]);
+                photoInput.files = transfer.files;
+                showPhotoPreview({ target: photoInput });
+            });
+
+            showStep(currentStep);
+        })();
+
+        function showPhotoPreview(event) {
+            const selectedFile = event.target.files[0];
+            const preview = document.getElementById("photoPreview");
+            const wrapper = document.getElementById("photoPreviewWrapper");
+            const fileName = document.getElementById("photoFileName");
+
+            if (!selectedFile) {
+                preview.removeAttribute("src");
+                wrapper.classList.add("d-none");
+                return;
+            }
+
+            preview.src = URL.createObjectURL(selectedFile);
+            fileName.textContent = selectedFile.name;
+            wrapper.classList.remove("d-none");
+        }
+
+        function removeSelectedPhoto() {
+            const input = document.getElementById("Photo");
+            const preview = document.getElementById("photoPreview");
+            const wrapper = document.getElementById("photoPreviewWrapper");
+
+            input.value = "";
+            preview.removeAttribute("src");
+            wrapper.classList.add("d-none");
+        }
+
+        function getCurrentLocation() {
+            const button = document.getElementById("locationButton");
+            const message = document.getElementById("locationMessage");
+            const locationError = document.getElementById("locationClientError");
+
+            if (!navigator.geolocation) {
+                message.textContent = "Tarayıcınız konum özelliğini desteklemiyor.";
+                message.className = "is-error";
+                return;
+            }
+
+            button.disabled = true;
+            message.textContent = "Konum alınıyor...";
+            message.className = "";
+
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    document.getElementById("Latitude").value =
+                        position.coords.latitude.toString().replace(".", ",");
+
+                    document.getElementById("Longitude").value =
+                        position.coords.longitude.toString().replace(".", ",");
+
+                    message.textContent = "Konumunuz başarıyla eklendi.";
+                    message.className = "is-success";
+                    locationError.textContent = "";
+                    button.textContent = "Konum Eklendi";
+                    button.classList.add("is-complete");
+                    button.disabled = false;
+                },
+                () => {
+                    message.textContent =
+                        "Konum alınamadı. Konum izni vermeyi veya bulunduğunuz yeri yazmayı deneyin.";
+                    message.className = "is-error";
+                    button.disabled = false;
+                }
+            );
+        }
+    </script>
+}

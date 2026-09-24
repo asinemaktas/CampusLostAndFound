@@ -1,0 +1,350 @@
+﻿@model IEnumerable<CampusLostAndFound.Models.FoundItem>
+
+@{
+    ViewData["Title"] = "Ana Sayfa";
+    ViewData["FullWidth"] = true;
+    ViewData["BodyClass"] = "public-home-body";
+}
+
+<section class="public-hero">
+    <div class="hero-decoration hero-decoration-one"></div>
+    <div class="hero-decoration hero-decoration-two"></div>
+
+    <div class="container-xl hero-container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="university-badge">
+                    Düzce Üniversitesi
+                </span>
+
+                <h1 class="public-hero-title">
+                    Kayıp eşyanı bulmak
+                    <span>artık daha kolay.</span>
+                </h1>
+
+                <p class="public-hero-description">
+                    Kampüs güvenliğine teslim edilen eşyaları
+                    inceleyin, size ait olduğunu düşündüğünüz eşya
+                    için güvenli bir şekilde talep
+                    oluşturun.
+                </p>
+
+                <div class="hero-actions">
+                    <a asp-area="Identity"
+                       asp-page="/Account/Login"
+                       class="btn hero-login-button">
+                        Giriş Yap
+                    </a>
+
+                    <a asp-area="Identity"
+                       asp-page="/Account/Register"
+                       class="btn hero-register-button">
+                        Kayıt Ol
+                    </a>
+
+                    <a asp-area=""
+                       asp-controller="FoundItemReports"
+                       asp-action="Create"
+                       class="btn hero-report-button">
+                        Eşya Buldum
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="col-lg-6">
+                <div class="recent-items-card">
+                    <div class="recent-items-header">
+                        <h2>Son Bulunan Eşyalar</h2>
+                    </div>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="recent-items-list">
+                            @foreach (var item in Model)
+
+                            {
+                                var lowerName =
+                                item.Name.ToLowerInvariant();
+
+                                <div class="recent-item">
+                                    <div class="recent-item-icon"
+                                         aria-hidden="true">
+
+                                        @if (lowerName.Contains("kulaklık"))
+                                        {
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
+                                                <rect x="3"
+                                                      y="13"
+                                                      width="4"
+                                                      height="7"
+                                                      rx="2" />
+                                                <rect x="17"
+                                                      y="13"
+                                                      width="4"
+                                                      height="7"
+                                                      rx="2" />
+                                            </svg>
+                                        }
+                                        else if (lowerName.Contains("çanta"))
+                                        {
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M8 8V7a4 4 0 0 1 8 0v1" />
+                                                <rect x="5"
+                                                      y="7"
+                                                      width="14"
+                                                      height="14"
+                                                      rx="3" />
+                                                <path d="M8 12h8" />
+                                                <path d="M9 16h6" />
+                                            </svg>
+                                        }
+                                        else if (lowerName.Contains("anahtar"))
+                                        {
+                                            <svg viewBox="0 0 24 24">
+                                                <circle cx="8"
+                                                        cy="15"
+                                                        r="3" />
+                                                <path d="M11 15h10" />
+                                                <path d="M18 15v-3" />
+                                                <path d="M15 15v-2" />
+                                            </svg>
+                                        }
+                                        else if (
+                                        lowerName.Contains("kart") ||
+                                        lowerName.Contains("cüzdan"))
+                                        {
+                                            <svg viewBox="0 0 24 24">
+                                                <rect x="3"
+                                                      y="5"
+                                                      width="18"
+                                                      height="14"
+                                                      rx="2" />
+                                                <path d="M3 10h18" />
+                                                <path d="M7 15h3" />
+                                            </svg>
+                                        }
+                                        else
+                                        {
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="m4 7 8-4 8 4-8 4-8-4Z" />
+                                                <path d="M4 7v10l8 4 8-4V7" />
+                                                <path d="M12 11v10" />
+                                            </svg>
+                                        }
+                                    </div>
+
+                                    <div class="recent-item-content">
+                                        <span class="recent-item-name">
+                                            @item.Name
+                                        </span>
+
+                                        <span class="recent-item-location">
+                                            <span class="location-symbol">
+                                                ●
+                                            </span>
+
+                                            @(string.IsNullOrWhiteSpace(
+                                                item.Building)
+                                                ? "Kampüs"
+                                                : item.Building)
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="recent-items-information">
+                            <span class="information-icon">i</span>
+
+                            <span>
+                                Eşya ayrıntılarını görmek ve sahiplik
+                                talebi oluşturmak için giriş yapın.
+                            </span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-items-message">
+                            Henüz görüntülenecek bir eşya bulunmuyor.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="nasil-calisir"
+         class="how-it-works-section">
+    <div class="container-xl">
+        <div class="section-heading">
+            <h2>Nasıl Çalışır?</h2>
+
+            <p>
+                Kaybedenler ve bulanlar için güvenli,
+                anlaşılır ve hızlı bir süreç.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="how-card lost-card">
+                    <div class="how-card-heading">
+                        <div class="how-card-icon lost-icon">
+                            🔍
+                        </div>
+
+                        <div>
+                            <h3>Bir eşya mı kaybettiniz?</h3>
+
+                            <p>
+                                Öğrenci hesabınızla giriş yapın,
+                                eşyanızı bulun ve sahiplik sürecini
+                                başlatın.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="how-steps">
+                        <div class="how-step">
+                            <span class="how-step-number">1</span>
+
+                            <div>
+                                <h4>Bulunan eşyaları inceleyin</h4>
+                                <p>
+                                    Kategori, bina ve tarihe göre
+                                    kaybettiğiniz eşyayı arayın.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="how-step">
+                            <span class="how-step-number">2</span>
+
+                            <div>
+                                <h4>Sahiplik talebi gönderin</h4>
+                                <p>
+                                    Eşyanın size ait olduğunu düşünme
+                                    sebebinizi açıklayın.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="how-step">
+                            <span class="how-step-number">3</span>
+
+                            <div>
+                                <h4>Gizli bilgiyle doğrulayın</h4>
+                                <p>
+                                    Yalnızca gerçek sahibinin
+                                    bilebileceği ayırt edici bilgiyi
+                                    paylaşın.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="how-step">
+                            <span class="how-step-number">4</span>
+
+                            <div>
+                                <h4>Onay sonrası teslim alın</h4>
+                                <p>
+                                    Talebinizin durumunu takip edin ve
+                                    onaylanınca güvenlikten teslim alın.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a asp-area="Identity"
+                       asp-page="/Account/Login"
+                       class="btn lost-action-button">
+                        Bulunan Eşyaları İncele
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="how-card found-card">
+                    <div class="how-card-heading">
+                        <div class="how-card-icon found-icon">
+                            📍
+                        </div>
+
+                        <div>
+                            <h3>Bir eşya mı buldunuz?</h3>
+
+                            <p>
+                                Hesabınız olmasa da kampüste bulduğunuz
+                                bir eşyayı bildirebilirsiniz.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="how-steps">
+                        <div class="how-step">
+                            <span class="how-step-number">1</span>
+
+                            <div>
+                                <h4>
+                                    Fotoğraf ve kısa açıklama ekleyin
+                                </h4>
+                                <p>
+                                    Eşyanın görünümünü ve bulunduğu
+                                    andaki hâlini kısaca belirtin.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="how-step">
+                            <span class="how-step-number">2</span>
+
+                            <div>
+                                <h4>Konumu paylaşın</h4>
+                                <p>
+                                    Kampüs bölgesini seçin veya anlık
+                                    konumunuzu iletin.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="how-step">
+                            <span class="how-step-number">3</span>
+
+                            <div>
+                                <h4>Eşyayı güvenliğe teslim edin</h4>
+                                <p>
+                                    Sistem size en yakın güvenlik
+                                    noktasını önersin.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="how-step">
+                            <span class="how-step-number">4</span>
+
+                            <div>
+                                <h4>
+                                    Güvenlik onayından sonra yayımlansın
+                                </h4>
+                                <p>
+                                    Güvenlik teslim aldığında eşya,
+                                    bulunan eşyalar listesine eklenir.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a asp-area=""
+                       asp-controller="FoundItemReports"
+                       asp-action="Create"
+                       class="btn found-action-button">
+                        Eşya Buldum
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

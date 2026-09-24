@@ -1,0 +1,280 @@
+﻿@model CampusLostAndFound.Models.FoundItem
+
+@{
+    ViewData["Title"] = "Yeni Eşya Kaydı";
+}
+
+<div class="found-item-create-page">
+
+    <header class="found-item-create-header">
+        <h1>Yeni Eşya Kaydı</h1>
+        <p>
+            Güvenlik birimine teslim edilen bulunan eşyayı
+            eksiksiz şekilde sisteme kaydedin.
+        </p>
+    </header>
+
+    <form asp-action="Create"
+          method="post"
+          class="found-item-create-form">
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger found-item-create-validation">
+        </div>
+
+        <!-- 1. Eşya kimliği -->
+        <section class="found-item-create-section">
+
+            <div class="found-item-create-section-header">
+                <span class="found-item-create-section-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 13 11 22l-9-9V4h9l9 9Z" />
+                        <circle cx="7" cy="9" r="1" />
+                    </svg>
+                </span>
+
+                <div>
+                    <h2>1. Eşya Kimliği ve Sınıflandırma</h2>
+                    <p>
+                        Eşyanın türü, temel kategorisi ve ana
+                        görsel özelliklerini belirleyin.
+                    </p>
+                </div>
+            </div>
+
+            <div class="found-item-create-grid found-item-create-grid-three">
+
+                <div class="found-item-create-field">
+                    <label asp-for="Name">
+                        Eşya Adı <span>*</span>
+                    </label>
+
+                    <input asp-for="Name"
+                           class="form-control"
+                           placeholder="Örn: Kulaklık, Sırt Çantası, Cüzdan" />
+
+                    <span asp-validation-for="Name"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="found-item-create-field">
+                    <label asp-for="Category">
+                        Kategori <span>*</span>
+                    </label>
+
+                    <select asp-for="Category"
+                            class="form-select">
+                        <option value="">Kategori seçiniz</option>
+                        <option value="Cüzdan">Cüzdan</option>
+                        <option value="Anahtar">Anahtar</option>
+                        <option value="Elektronik">Elektronik</option>
+                        <option value="Kart/Belge">Kart / Belge</option>
+                        <option value="Çanta">Çanta</option>
+                        <option value="Kıyafet">Kıyafet</option>
+                        <option value="Diğer">Diğer</option>
+                    </select>
+
+                    <span asp-validation-for="Category"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="found-item-create-field">
+                    <label asp-for="Color">
+                        Renk <span>*</span>
+                    </label>
+
+                    <input asp-for="Color"
+                           class="form-control"
+                           placeholder="Örn: Siyah, Lacivert, Gri" />
+
+                    <span asp-validation-for="Color"
+                          class="text-danger"></span>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 2. Konum ve zaman -->
+        <section class="found-item-create-section">
+
+            <div class="found-item-create-section-header">
+                <span class="found-item-create-section-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" />
+                        <circle cx="12" cy="10" r="2.5" />
+                    </svg>
+                </span>
+
+                <div>
+                    <h2>2. Konum ve Zaman Bilgileri</h2>
+                    <p>
+                        Eşyanın kampüs içinde tam olarak nerede ve
+                        hangi vakitte bulunduğu detayları.
+                    </p>
+                </div>
+            </div>
+
+            <div class="found-item-create-grid found-item-create-grid-three">
+
+                <div class="found-item-create-field">
+                    <label asp-for="Building">
+                        Bulunduğu Bina <span>*</span>
+                    </label>
+
+                    <input asp-for="Building"
+                           class="form-control"
+                           placeholder="Örn: Kütüphane, Mühendislik Fakültesi" />
+
+                    <span asp-validation-for="Building"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="found-item-create-field">
+                    <label asp-for="FoundLocation">
+                        Bulunduğu Yer <span>*</span>
+                    </label>
+
+                    <input asp-for="FoundLocation"
+                           class="form-control"
+                           placeholder="Örn: İkinci kat çalışma salonu" />
+
+                    <span asp-validation-for="FoundLocation"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="found-item-create-field">
+                    <label asp-for="FoundDate">
+                        Bulunma Tarihi ve Saati <span>*</span>
+                    </label>
+
+                    <input asp-for="FoundDate"
+                           asp-format="{0:yyyy-MM-ddTHH:mm}"
+                           type="datetime-local"
+                           class="form-control" />
+
+                    <span asp-validation-for="FoundDate"
+                          class="text-danger"></span>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 3. Açıklamalar -->
+        <section class="found-item-create-section">
+
+            <div class="found-item-create-section-header">
+                <span class="found-item-create-section-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Z" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
+                </span>
+
+                <div>
+                    <h2>3. Açıklama ve Güvenlik Detayları</h2>
+                    <p>
+                        Kamuya açık bilgiler ile yalnızca güvenlik
+                        personelinin göreceği doğrulama bilgisini girin.
+                    </p>
+                </div>
+            </div>
+
+            <div class="found-item-create-description-area">
+
+                <div class="found-item-create-field">
+                    <div class="found-item-create-label-row">
+                        <label asp-for="PublicDescription">
+                            Herkese Açık Açıklama
+                            <span>*</span>
+                        </label>
+
+                    </div>
+
+                    <textarea asp-for="PublicDescription"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Öğrencilerin ve personelin görebileceği genel eşya tanımı. Örn: Siyah renkli kulaklık masanın üzerinde bulundu."></textarea>
+
+                    <span asp-validation-for="PublicDescription"
+                          class="text-danger"></span>
+
+                    <p class="found-item-create-help">
+                        Bu açıklama bulunan eşyalar listesinde herkese
+                        açık olarak yayınlanır.
+                    </p>
+                </div>
+
+                <div class="found-item-create-secret">
+
+                    <div class="found-item-create-secret-title">
+                        <div>
+                            <span class="found-item-create-secret-icon">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <rect x="5" y="10" width="14" height="11" rx="2" />
+                                    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                                </svg>
+                            </span>
+
+                            <label asp-for="SecretDetail">
+                                Gizli Ayırt Edici Bilgi
+                                <span>*</span>
+                            </label>
+
+                            <span class="found-item-create-secret-badge">
+                                Sadece güvenlik
+                            </span>
+                        </div>
+
+                        <span class="found-item-create-key-label">
+                            Doğrulama Anahtarı
+                        </span>
+                    </div>
+
+                    <textarea asp-for="SecretDetail"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Örn: Sağ kulaklığın iç kısmında küçük bir çizik var, seri numarası 42 ile bitiyor."></textarea>
+
+                    <span asp-validation-for="SecretDetail"
+                          class="text-danger"></span>
+
+                    <div class="found-item-create-secret-warning">
+                        Bu bilgi yalnızca güvenlik görevlileri tarafından
+                        sahiplik doğrulaması sırasında kullanılır. Herkese
+                        açık eşya listesinde veya öğrenci ekranlarında
+                        gösterilmez.
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Alt işlem alanı -->
+        <div class="found-item-create-actions">
+
+            <p>
+                Bilgilerin doğruluğunu kontrol edip kayıt
+                işlemini tamamlayın.
+            </p>
+
+            <div>
+                <a asp-action="Index"
+                   class="btn found-item-create-back-button">
+                    ← Listeye Dön
+                </a>
+
+                <button type="submit"
+                        class="btn found-item-create-save-button">
+                    Kaydet
+                </button>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,296 @@
+﻿@model IEnumerable<CampusLostAndFound.Models.FoundItem>
+
+@{
+    ViewData["Title"] = "Teslim Edilen Eşyalar";
+}
+
+<div class="delivered-items-page">
+    <header class="delivered-items-header">
+        <div>
+            <h1>Teslim Edilen Eşyalar</h1>
+            <p>Teslimatı tamamlanan eşya kayıtlarını inceleyin.</p>
+        </div>
+
+        <span class="delivered-items-count">
+            @Model.Count() teslim edilmiş kayıt
+        </span>
+    </header>
+
+    @if (!Model.Any())
+    {
+        <section class="delivered-items-empty-state">
+            <span class="delivered-items-empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    <path d="M5 8h14v12H5V8Z" />
+                    <path d="M8 8V5h8v3" />
+                    <path d="m9 14 2 2 4-4" />
+                </svg>
+            </span>
+            <h2>Henüz teslim edilmiş eşya bulunmuyor</h2>
+            <p>Teslim işlemi tamamlanan kayıtlar burada listelenecek.</p>
+        </section>
+    }
+    else
+    {
+        <div class="delivered-items-workspace" data-delivered-items-workspace>
+            <section class="delivered-items-list-panel" aria-label="Teslim edilen eşya kayıtları">
+                <div class="delivered-items-list-heading">
+                    <div>
+                        <span>Kayıt Listesi</span>
+                        <strong>@Model.Count() kayıt</strong>
+                    </div>
+                    <span>Son teslim edilenler</span>
+                </div>
+
+                <div class="delivered-items-list">
+                    @foreach (var item in Model)
+                    {
+                        <button type="button"
+                                class="delivered-item-card"
+                                data-delivered-item-open="@item.Id"
+                                aria-controls="deliveredItemDetailPanel"
+                                aria-expanded="false">
+                            <span class="delivered-item-card-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M5 8h14v12H5V8Z" />
+                                    <path d="M8 8V5h8v3" />
+                                    <path d="m9 14 2 2 4-4" />
+                                </svg>
+                            </span>
+
+                            <span class="delivered-item-card-copy">
+                                <span class="delivered-item-card-title-row">
+                                    <strong>@item.Name</strong>
+                                    <span class="delivered-item-status">
+                                        <span aria-hidden="true">✓</span>
+                                        Teslim Edildi
+                                    </span>
+                                </span>
+
+                                <span class="delivered-item-card-date">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <circle cx="12" cy="12" r="9" />
+                                        <path d="M12 7v5l3 2" />
+                                    </svg>
+                                    @item.FoundDate.ToString("dd.MM.yyyy HH:mm")
+                                </span>
+                            </span>
+
+                            <span class="delivered-item-inspect">
+                                İncele <span aria-hidden="true">→</span>
+                            </span>
+                        </button>
+                    }
+                </div>
+            </section>
+
+            <aside id="deliveredItemDetailPanel"
+                   class="delivered-item-detail-panel"
+                   data-delivered-item-detail-panel
+                   aria-label="Teslim edilen eşya ayrıntıları"
+                   aria-hidden="true">
+                @foreach (var item in Model)
+                {
+                    <article class="delivered-item-detail"
+                             data-delivered-item-detail="@item.Id"
+                             hidden>
+                        <div class="delivered-item-detail-header">
+                            <div>
+                                <span>Teslim Edilen Eşya</span>
+                                <h2>@item.Name</h2>
+                            </div>
+
+                            <button type="button"
+                                    class="delivered-item-detail-close"
+                                    data-delivered-item-close
+                                    aria-label="Detay panelini kapat">
+                                ×
+                            </button>
+                        </div>
+
+                        <div class="delivered-item-detail-grid">
+                            <div class="delivered-item-detail-field">
+                                <span class="delivered-item-detail-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M4 21v-16h10v16M14 10h6v11M8 9h2M8 13h2M8 17h2M17 14h1M17 17h1" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <span>Bulunduğu Yer</span>
+                                    <strong>@item.Building — @item.FoundLocation</strong>
+                                </div>
+                            </div>
+
+                            <div class="delivered-item-detail-field">
+                                <span class="delivered-item-detail-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="9" />
+                                        <path d="M12 7v5l3 2" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <span>Bulunma Zamanı</span>
+                                    <strong>@item.FoundDate.ToString("dd.MM.yyyy HH:mm")</strong>
+                                </div>
+                            </div>
+
+                            <div class="delivered-item-detail-field">
+                                <span class="delivered-item-detail-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M20 13 13 20 4 11V4h7l9 9Z" />
+                                        <circle cx="8.5" cy="8.5" r="1" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <span>Kategori</span>
+                                    <strong>@item.Category</strong>
+                                </div>
+                            </div>
+
+                            <div class="delivered-item-detail-field is-delivered">
+                                <span class="delivered-item-detail-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="9" />
+                                        <path d="m8 12 2.5 2.5L16 9" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <span>Teslim Durumu</span>
+                                    <strong>Başarıyla Teslim Edildi</strong>
+                                </div>
+                            </div>
+
+                            <div class="delivered-item-detail-field">
+                                <span class="delivered-item-detail-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="8" />
+                                        <path d="M8 14c1-3 2-5 4-5s3 2 4 5" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <span>Renk</span>
+                                    <strong>@item.Color</strong>
+                                </div>
+                            </div>
+
+                            <div class="delivered-item-detail-field delivered-item-detail-field-wide">
+                                <span class="delivered-item-detail-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M5 4h14v16H5V4Z" />
+                                        <path d="M8 8h8M8 12h8M8 16h5" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <span>Herkese Açık Açıklama</span>
+                                    <p>@item.PublicDescription</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </aside>
+        </div>
+    }
+</div>
+
+<script>
+    (() => {
+        const workspaces = document.querySelectorAll(
+            "[data-delivered-items-workspace]"
+        );
+
+        workspaces.forEach((workspace) => {
+            if (workspace.dataset.panelReady === "true") {
+                return;
+            }
+
+            workspace.dataset.panelReady = "true";
+
+            const panel = workspace.querySelector(
+                "[data-delivered-item-detail-panel]"
+            );
+            const openButtons = Array.from(
+                workspace.querySelectorAll("[data-delivered-item-open]")
+            );
+            const details = Array.from(
+                workspace.querySelectorAll("[data-delivered-item-detail]")
+            );
+
+            if (!panel) {
+                return;
+            }
+
+            const closePanel = () => {
+                workspace.classList.remove("is-detail-open");
+                panel.setAttribute("aria-hidden", "true");
+
+                openButtons.forEach((button) => {
+                    button.classList.remove("is-selected");
+                    button.setAttribute("aria-expanded", "false");
+                });
+
+                window.setTimeout(() => {
+                    if (!workspace.classList.contains("is-detail-open")) {
+                        details.forEach((detail) => {
+                            detail.hidden = true;
+                        });
+                    }
+                }, 320);
+            };
+
+            const openPanel = (id, trigger) => {
+                const selectedDetail = details.find(
+                    (detail) => detail.dataset.deliveredItemDetail === id
+                );
+
+                if (!selectedDetail) {
+                    return;
+                }
+
+                details.forEach((detail) => {
+                    detail.hidden = detail !== selectedDetail;
+                });
+
+                openButtons.forEach((button) => {
+                    const selected = button === trigger;
+                    button.classList.toggle("is-selected", selected);
+                    button.setAttribute(
+                        "aria-expanded",
+                        selected ? "true" : "false"
+                    );
+                });
+
+                panel.setAttribute("aria-hidden", "false");
+                workspace.classList.add("is-detail-open");
+                panel.scrollTop = 0;
+
+                window.requestAnimationFrame(() => {
+                    selectedDetail
+                        .querySelector("[data-delivered-item-close]")
+                        ?.focus();
+                });
+            };
+
+            openButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    openPanel(button.dataset.deliveredItemOpen, button);
+                });
+            });
+
+            workspace.addEventListener("click", (event) => {
+                if (event.target.closest("[data-delivered-item-close]")) {
+                    closePanel();
+                }
+            });
+
+            document.addEventListener("keydown", (event) => {
+                if (
+                    event.key === "Escape" &&
+                    workspace.classList.contains("is-detail-open")
+                ) {
+                    closePanel();
+                }
+            });
+        });
+    })();
+</script>

@@ -1,0 +1,211 @@
+﻿@model CampusLostAndFound.Models.OwnershipClaim
+
+@{
+    ViewData["Title"] = "Talebi İncele";
+}
+
+<h1>Talebi İncele</h1>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header">
+                Güvenlik Kaydı
+            </div>
+
+            <div class="card-body">
+                <p>
+                    <strong>Eşya:</strong>
+                    @Model.FoundItem?.Name
+                </p>
+
+                <p>
+                    <strong>Kategori:</strong>
+                    @Model.FoundItem?.Category
+                </p>
+
+                <p>
+                    <strong>Renk:</strong>
+                    @Model.FoundItem?.Color
+                </p>
+
+                <p>
+                    <strong>Bulunduğu yer:</strong>
+                    @Model.FoundItem?.Building –
+                    @Model.FoundItem?.FoundLocation
+                </p>
+
+                <div class="alert alert-warning">
+                    <strong>Gizli doğrulama bilgisi:</strong>
+                    <br />
+                    @Model.FoundItem?.SecretDetail
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header">
+                Öğrencinin Talebi
+            </div>
+
+            <div class="card-body">
+                <p>
+                    <strong>Öğrenci:</strong>
+                    @ViewBag.StudentEmail
+                </p>
+
+                <p>
+                    <strong>Talep tarihi:</strong>
+                    @Model.CreatedAt.ToString(
+                             "dd.MM.yyyy HH:mm")
+                </p>
+
+                <div class="alert alert-info">
+                    <strong>Öğrencinin açıklaması:</strong>
+                    <br />
+                    @Model.ProofDescription
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(
+                Model.ReviewNote))
+                {
+                    <div class="alert alert-secondary">
+                        <strong>Görevli notu:</strong>
+                        <br />
+                        @Model.ReviewNote
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Status ==
+   CampusLostAndFound.Models.ClaimStatus.Pending)
+{
+    <form method="post">
+        <div class="mb-3">
+            <label for="reviewNote"
+                   class="form-label">
+                Görevli Notu
+            </label>
+
+            <textarea name="reviewNote"
+                      id="reviewNote"
+                      class="form-control"
+                      rows="3"
+                      maxlength="500"
+                      placeholder="Reddetme işleminde gerekçe yazılması zorunludur."></textarea>
+
+            <div class="form-text">
+                Onaylama işleminde not isteğe bağlıdır.
+                Reddetme işleminde gerekçe zorunludur.
+            </div>
+        </div>
+
+        <button asp-action="Approve"
+                asp-route-id="@Model.Id"
+                type="submit"
+                class="btn btn-success">
+            Kabul Et
+        </button>
+
+        <button asp-action="Reject"
+                asp-route-id="@Model.Id"
+                type="submit"
+                class="btn btn-danger">
+            Reddet
+        </button>
+    </form>
+}
+else if (
+    Model.Status ==
+        CampusLostAndFound.Models.ClaimStatus.Approved &&
+    Model.FoundItem?.IsDelivered == false)
+{
+    <div class="alert alert-success">
+        Talep kabul edildi. Eşya henüz teslim edilmedi.
+    </div>
+
+    <form asp-action="MarkDelivered"
+          asp-route-id="@Model.Id"
+          method="post"
+          class="d-inline">
+        <button type="submit"
+                class="btn btn-success">
+            Eşyayı Teslim Edildi Olarak İşaretle
+        </button>
+    </form>
+
+    <form asp-action="RevokeApproval"
+          asp-route-id="@Model.Id"
+          method="post"
+          class="d-inline">
+        <button type="submit"
+                class="btn btn-warning"
+                onclick="return confirm('Bu talebin onayını geri almak istediğinize emin misiniz?');">
+            Onayı Geri Al
+        </button>
+    </form>
+}
+else if (
+    Model.Status ==
+        CampusLostAndFound.Models.ClaimStatus.Approved &&
+    Model.FoundItem?.IsDelivered == true)
+{
+    <div class="alert alert-success">
+        Eşya bu talep sahibine teslim edildi.
+    </div>
+}
+else if (
+    Model.Status ==
+        CampusLostAndFound.Models.ClaimStatus.Rejected)
+{
+    <div class="alert alert-danger">
+        Bu talep güvenlik görevlisi tarafından reddedildi.
+    </div>
+
+    @if (Model.FoundItem?.IsDelivered == false)
+    {
+        <form asp-action="RevokeRejection"
+              asp-route-id="@Model.Id"
+              method="post">
+            <button type="submit"
+                    class="btn btn-warning"
+                    onclick="return confirm('Bu talebin reddini geri almak istediğinize emin misiniz?');">
+                Reddi Geri Al
+            </button>
+        </form>
+    }
+}
+
+else if (
+    Model.Status ==
+        CampusLostAndFound.Models.ClaimStatus.Closed)
+{
+    <div class="alert alert-warning">
+        Eşya doğrulanan sahibine teslim edildiği için
+        bu talep kapatıldı.
+    </div>
+}
+
+<a asp-action="Manage"
+   class="btn btn-secondary mt-3">
+    Talep Listesine Dön
+</a>

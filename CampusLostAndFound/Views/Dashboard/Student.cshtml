@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = "Öğrenci Paneli";
+    ViewData["FullWidth"] = true;
+}
+
+<section class="student-dashboard-page">
+    <div class="student-dashboard-container">
+
+        <div class="student-action-list">
+
+            <article class="student-action-card">
+                <div class="student-action-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M8 6h12M8 12h12M8 18h12" />
+                        <path d="M4 6h.01M4 12h.01M4 18h.01" />
+                    </svg>
+                </div>
+
+                <div class="student-action-content">
+                    <span class="student-action-label student-blue-label">
+                        Kayıp &amp; Buluntu Veritabanı
+                    </span>
+
+                    <h2>Bulunan Eşyalar</h2>
+
+                    <p>
+                        Güvenliğe teslim edilen ve henüz sahibine
+                        ulaştırılmamış eşyaları görüntüleyin.
+                    </p>
+                </div>
+
+                <a asp-controller="FoundItems"
+                   asp-action="Index"
+                   class="student-primary-button">
+                    <span>Eşyaları İncele</span>
+
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </a>
+            </article>
+
+            <article class="student-action-card">
+                <div class="student-action-icon student-claims-icon"
+                     aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="8" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
+                </div>
+
+                <div class="student-action-content">
+                    <span class="student-action-label student-orange-label">
+                        Talep Takibi
+                    </span>
+
+                    <h2>Taleplerim</h2>
+
+                    <p>
+                        Gönderdiğiniz sahiplik taleplerinin güncel
+                        durumunu takip edin.
+                    </p>
+                </div>
+
+                <div class="student-card-right">
+                    <div class="student-claim-counts">
+                        <span class="student-count-badge student-total-count">
+                            <i aria-hidden="true"></i>
+                            Toplam: @ViewBag.MyClaimCount
+                        </span>
+
+                        <span class="student-count-badge student-pending-count">
+                            <i aria-hidden="true"></i>
+                            Bekleyen: @ViewBag.MyPendingClaimCount
+                        </span>
+                    </div>
+
+                    <a asp-controller="OwnershipClaims"
+                       asp-action="MyClaims"
+                       class="student-secondary-button">
+                        <span>Taleplerimi Gör</span>
+
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m9 18 6-6-6-6" />
+                        </svg>
+                    </a>
+                </div>
+            </article>
+
+        </div>
+    </div>
+</section>

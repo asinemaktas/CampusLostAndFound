@@ -1,0 +1,58 @@
+﻿@model CampusLostAndFound.Models.OwnershipClaim
+
+@{
+    ViewData["Title"] = "Sahiplik Talebi";
+}
+
+<h1>Sahiplik Talebi</h1>
+
+<div class="alert alert-info">
+    <strong>Talep edilen eşya:</strong> @ViewBag.ItemName
+</div>
+
+<p>
+    Eşyanın size ait olduğunu gösterecek ve yalnızca gerçek
+    sahibinin bilebileceği ayrıntıları yazınız.
+</p>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger">
+    </div>
+
+    <input type="hidden"
+           asp-for="FoundItemId" />
+
+    <div class="mb-3">
+        <label asp-for="ProofDescription"
+               class="form-label">
+        </label>
+
+        <textarea asp-for="ProofDescription"
+                  class="form-control"
+                  rows="5"
+                  placeholder="Örneğin eşyanın markası, içindekiler, üzerindeki çizik veya özel bir ayrıntı...">
+        </textarea>
+
+        <span asp-validation-for="ProofDescription"
+              class="text-danger">
+        </span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Talebi Gönder
+    </button>
+
+    <a asp-controller="FoundItems"
+       asp-action="Details"
+       asp-route-id="@Model.FoundItemId"
+       class="btn btn-secondary">
+        Vazgeç
+    </a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

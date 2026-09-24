@@ -1,0 +1,109 @@
+﻿@{
+    ViewData["Title"] = "Bildirim Alındı";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body p-5 text-center">
+
+                <div class="text-success mb-3"
+                     style="font-size: 60px;">
+                    ✓
+                </div>
+
+                <h1 class="mb-3">Bildiriminiz Alındı</h1>
+
+                <p class="lead">
+                    Bulduğunuz eşya hakkındaki bilgiler
+                    güvenlik birimine iletildi.
+                </p>
+
+                <div class="alert alert-info mt-4">
+                    Bildirim numaranız:
+                    <strong>#@ViewBag.ReportId</strong>
+                </div>
+
+                <p class="text-muted">
+                    Lütfen eşyayı kampüs güvenlik birimine teslim edin.
+                    Güvenlik görevlisi eşyayı teslim aldıktan sonra
+                    bildirimi kontrol ederek bulunan eşyalar listesinde
+                    yayımlayacaktır.
+                </p>
+
+                <p class="text-muted">
+                    Güvenlik birimi gerektiğinde verdiğiniz telefon
+                    veya e-posta bilgisi üzerinden sizinle iletişim
+                    kurabilir.
+                </p>
+
+                @if (ViewBag.NearestSecurityPointName != null)
+                {
+                    <div class="alert alert-success text-start mt-4">
+
+                        @if (ViewBag.IsAreaSuggestion == true)
+                        {
+                            <h2 class="h5">
+                                Bölgeniz İçin Önerilen Güvenlik Noktası
+                            </h2>
+
+                            <p class="mb-3">
+                                Seçtiğiniz kampüs bölgesine göre aşağıdaki
+                                teslim noktası önerilmektedir.
+                            </p>
+                        }
+                        else
+                        {
+                            <h2 class="h5">
+                                Size En Yakın Güvenlik Noktası
+                            </h2>
+                        }
+
+                        <p class="mb-2">
+                            <strong>
+                                @ViewBag.NearestSecurityPointName
+                            </strong>
+                        </p>
+
+                        <p class="mb-2">
+                            @ViewBag.NearestSecurityPointDescription
+                        </p>
+
+                        @if (ViewBag.DistanceMeters != null)
+                        {
+                            <p class="mb-3">
+                                Yaklaşık mesafe:
+                                <strong>
+                                    @ViewBag.DistanceMeters metre
+                                </strong>
+                            </p>
+                        }
+
+                        <a href="@ViewBag.DirectionsUrl"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="btn btn-success">
+                            Haritada Aç ve Yol Tarifi Al
+                        </a>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info text-start mt-4">
+                        En yakın güvenlik noktasını görebilmek için
+                        anlık konumunuzu kullanabilir veya kampüs
+                        bölgesi seçebilirsiniz.
+                    </div>
+                }
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="btn btn-primary mt-3">
+                    Ana Sayfaya Dön
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>

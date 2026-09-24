@@ -1,0 +1,512 @@
+﻿@using CampusLostAndFound.Models
+@using System.Collections.Generic
+@using System.Globalization
+@model IEnumerable<CampusLostAndFound.Models.OwnershipClaim>
+
+@{
+    ViewData["Title"] = "Sahiplik Talepleri";
+
+    var claims = Model.ToList();
+    var studentEmails =
+        ViewBag.StudentEmails as IDictionary<string, string>
+        ?? new Dictionary<string, string>();
+
+    int? openClaimId = ViewBag.OpenClaimId == null
+        ? null
+        : Convert.ToInt32(ViewBag.OpenClaimId);
+
+    int pendingCount = claims.Count(x => x.Status == ClaimStatus.Pending);
+    int approvedCount = claims.Count(x => x.Status == ClaimStatus.Approved);
+    int rejectedCount = claims.Count(x => x.Status == ClaimStatus.Rejected);
+
+    var monthValues = claims
+        .Select(x => x.CreatedAt.ToString("yyyy-MM"))
+        .Distinct()
+        .OrderByDescending(x => x)
+        .ToList();
+
+    var turkishCulture = new CultureInfo("tr-TR");
+}
+
+<div class="ownership-claims-page" data-ownership-claims-page>
+    <header class="ownership-claims-header">
+        <div>
+            <h1>Sahiplik Talepleri</h1>
+            <p>Öğrencilerin bulunan eşyalar için gönderdiği sahiplik doğrulama taleplerini inceleyin.</p>
+        </div>
+
+        <span class="ownership-claims-total-badge">
+            @claims.Count aktif talep
+        </span>
+    </header>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="ownership-claims-message is-success" role="status">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="ownership-claims-message is-error" role="alert">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (!claims.Any())
+    {
+        <section class="ownership-claims-empty-state">
+            <span class="ownership-claims-empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="m8 12 2.5 2.5L16 9" />
+                </svg>
+            </span>
+            <h2>Henüz sahiplik talebi bulunmuyor</h2>
+            <p>Öğrenciler tarafından gönderilen talepler burada listelenecek.</p>
+        </section>
+    }
+    else
+    {
+        <section class="ownership-claims-filter-card" aria-label="Talep filtreleri">
+            <div class="ownership-claims-filter-top">
+                <label class="ownership-claims-search">
+                    <span class="visually-hidden">Talep ara</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="m20 20-4-4" />
+                    </svg>
+                    <input type="search"
+                           data-claim-search
+                           placeholder="Eşya adı veya öğrenci e-postası ara..."
+                           autocomplete="off" />
+                </label>
+
+                <div class="ownership-claims-selects">
+                    <label class="ownership-claims-select-wrapper">
+                        <span class="visually-hidden">Aya göre filtrele</span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5 5h14v15H5V5Z" />
+                            <path d="M8 3v4M16 3v4M5 9h14" />
+                        </svg>
+                        <select data-claim-month>
+                            <option value="all">Tüm aylar</option>
+                            @foreach (var monthValue in monthValues)
+                            {
+                                var monthDate = DateTime.ParseExact(
+                                $"{monthValue}-01",
+                                "yyyy-MM-dd",
+                                CultureInfo.InvariantCulture);
+
+                                var monthLabel = turkishCulture.TextInfo.ToTitleCase(
+                                monthDate.ToString("MMMM yyyy", turkishCulture));
+
+                                <option value="@monthValue">@monthLabel</option>
+                            }
+                        </select>
+                    </label>
+
+                    <label class="ownership-claims-select-wrapper">
+                        <span class="visually-hidden">Talepleri sırala</span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 7h14M4 12h10M4 17h6" />
+                        </svg>
+                        <select data-claim-sort>
+                            <option value="newest">En Yeni Tarih</option>
+                            <option value="oldest">En Eski Tarih</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+
+            <div class="ownership-claims-status-filters" role="group" aria-label="Talep durumu">
+                <button type="button" class="is-active" data-claim-status="all">
+                    Tümü <span>@claims.Count</span>
+                </button>
+                <button type="button" data-claim-status="pending">
+                    Bekliyor <span>@pendingCount</span>
+                </button>
+                <button type="button" data-claim-status="approved">
+                    Onaylandı <span>@approvedCount</span>
+                </button>
+                <button type="button" data-claim-status="rejected">
+                    Reddedildi <span>@rejectedCount</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="ownership-claims-list" data-claims-list aria-label="Sahiplik talebi kayıtları">
+            @foreach (var claim in claims)
+            {
+                studentEmails.TryGetValue(claim.StudentId, out var studentEmail);
+                studentEmail ??= "Bilinmiyor";
+
+                string statusText = claim.Status switch
+                {
+                    ClaimStatus.Pending => "Bekliyor",
+                    ClaimStatus.Approved => "Onaylandı",
+                    ClaimStatus.Rejected => "Reddedildi",
+                    ClaimStatus.Closed => "Kapatıldı",
+                    _ => "Bilinmiyor"
+                };
+
+                string statusKey = claim.Status switch
+                {
+                    ClaimStatus.Pending => "pending",
+                    ClaimStatus.Approved => "approved",
+                    ClaimStatus.Rejected => "rejected",
+                    ClaimStatus.Closed => "closed",
+                    _ => "unknown"
+                };
+
+                bool isOpen = openClaimId == claim.Id;
+                string itemName = claim.FoundItem?.Name ?? "Silinmiş eşya kaydı";
+                string category = claim.FoundItem?.Category ?? "—";
+                string color = claim.FoundItem?.Color ?? "—";
+
+                <article class="ownership-claim-record @(isOpen ? "is-open" : "")"
+                         data-claim-record
+                         data-claim-id="@claim.Id"
+                         data-name="@itemName.ToLower(turkishCulture)"
+                         data-email="@studentEmail.ToLower(turkishCulture)"
+                         data-status="@statusKey"
+                         data-month="@claim.CreatedAt.ToString("yyyy-MM")"
+                         data-created="@claim.CreatedAt.Ticks">
+                    <div class="ownership-claim-summary">
+                        <span class="ownership-claim-item-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 8h14v12H5V8Z" />
+                                <path d="M8 8V5h8v3" />
+                            </svg>
+                        </span>
+
+                        <div class="ownership-claim-item-copy">
+                            <strong>@itemName</strong>
+                            <span>Kategori: @category <i>•</i> Renk: @color</span>
+                        </div>
+
+                        <div class="ownership-claim-student">
+                            <span class="ownership-claim-avatar" aria-hidden="true">
+                                @(studentEmail.Length > 0 ? studentEmail.Substring(0, 1).ToUpper(turkishCulture) : "Ö")
+                            </span>
+                            <div>
+                                <span>Talep Eden</span>
+                                <strong>@studentEmail</strong>
+                            </div>
+                        </div>
+
+                        <div class="ownership-claim-date">
+                            <span>Talep Tarihi</span>
+                            <strong>@claim.CreatedAt.ToString("dd.MM.yyyy HH:mm")</strong>
+                        </div>
+
+                        <span class="ownership-claim-status is-@statusKey">
+                            <span aria-hidden="true"></span>
+                            @statusText
+                        </span>
+
+                        <button type="button"
+                                class="ownership-claim-toggle"
+                                data-claim-toggle
+                                aria-expanded="@(isOpen ? "true" : "false")"
+                                aria-controls="claimDetails-@claim.Id">
+                            <span>İncele</span>
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="m7 10 5 5 5-5" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div id="claimDetails-@claim.Id"
+                         class="ownership-claim-details"
+                         data-claim-details>
+                        <div class="ownership-claim-details-inner">
+                            <div class="ownership-claim-detail-heading">
+                                <div>
+                                    <span>Talep Değerlendirmesi</span>
+                                    <h2>@itemName için sahiplik talebi</h2>
+                                </div>
+                            </div>
+
+                            <div class="ownership-claim-comparison">
+                                <section class="ownership-claim-info-card">
+                                    <div class="ownership-claim-info-heading">
+                                        <span class="is-blue" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M5 8h14v12H5V8Z" />
+                                                <path d="M8 8V5h8v3" />
+                                            </svg>
+                                        </span>
+                                        <div>
+                                            <span>Güvenlik Kaydı</span>
+                                            <h3>Eşya Bilgileri</h3>
+                                        </div>
+                                    </div>
+
+                                    <dl class="ownership-claim-facts">
+                                        <div><dt>Eşya</dt><dd>@itemName</dd></div>
+                                        <div><dt>Kategori</dt><dd>@category</dd></div>
+                                        <div><dt>Renk</dt><dd>@color</dd></div>
+                                        <div class="is-wide">
+                                            <dt>Bulunduğu Yer</dt>
+                                            <dd>@claim.FoundItem?.Building — @claim.FoundItem?.FoundLocation</dd>
+                                        </div>
+                                    </dl>
+
+                                    <div class="ownership-claim-secret">
+                                        <div>
+                                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                <rect x="5" y="10" width="14" height="10" rx="2" />
+                                                <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                                            </svg>
+                                            <strong>Gizli Doğrulama Bilgisi</strong>
+                                        </div>
+                                        <p>@claim.FoundItem?.SecretDetail</p>
+                                    </div>
+                                </section>
+
+                                <section class="ownership-claim-info-card">
+                                    <div class="ownership-claim-info-heading">
+                                        <span class="is-green" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24">
+                                                <circle cx="12" cy="8" r="4" />
+                                                <path d="M5 21a7 7 0 0 1 14 0" />
+                                            </svg>
+                                        </span>
+                                        <div>
+                                            <span>Öğrencinin Talebi</span>
+                                            <h3>@studentEmail</h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="ownership-claim-request-meta">
+                                        <span>Talep tarihi</span>
+                                        <strong>@claim.CreatedAt.ToString("dd.MM.yyyy HH:mm")</strong>
+                                    </div>
+
+                                    <div class="ownership-claim-proof">
+                                        <span>Öğrencinin Açıklaması</span>
+                                        <p>@claim.ProofDescription</p>
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(claim.ReviewNote))
+                                    {
+                                        <div class="ownership-claim-review-note">
+                                            <span>Görevli Notu</span>
+                                            <p>@claim.ReviewNote</p>
+                                        </div>
+                                    }
+                                </section>
+                            </div>
+
+                            <div class="ownership-claim-decision is-@statusKey">
+                                <div class="ownership-claim-decision-status">
+                                    <span>Mevcut Durum</span>
+                                    <strong>@statusText</strong>
+                                </div>
+
+                                @if (claim.Status == ClaimStatus.Pending)
+                                {
+                                    <form method="post" class="ownership-claim-action-form">
+                                        <label for="reviewNote-@claim.Id">Görevli Notu</label>
+                                        <textarea name="reviewNote"
+                                                  id="reviewNote-@claim.Id"
+                                                  rows="3"
+                                                  maxlength="500"
+                                                  placeholder="Reddetme işleminde gerekçe yazılması zorunludur."></textarea>
+                                        <small>
+                                            Onaylama işleminde not isteğe bağlı, reddetme işleminde zorunludur.
+                                        </small>
+                                        <div class="ownership-claim-actions">
+                                            <button asp-action="Approve"
+                                                    asp-route-id="@claim.Id"
+                                                    type="submit"
+                                                    class="btn ownership-claim-approve">
+                                                Kabul Et
+                                            </button>
+                                            <button asp-action="Reject"
+                                                    asp-route-id="@claim.Id"
+                                                    type="submit"
+                                                    class="btn ownership-claim-reject">
+                                                Reddet
+                                            </button>
+                                        </div>
+                                    </form>
+                                }
+                                else if (claim.Status == ClaimStatus.Approved && claim.FoundItem?.IsDelivered == false)
+                                {
+                                    <div class="ownership-claim-result-copy">
+                                        Talep kabul edildi. Eşya henüz sahibine teslim edilmedi.
+                                    </div>
+                                    <div class="ownership-claim-actions">
+                                        <form asp-action="MarkDelivered" asp-route-id="@claim.Id" method="post">
+                                            <button type="submit" class="btn ownership-claim-approve">
+                                                Eşyayı Teslim Edildi Olarak İşaretle
+                                            </button>
+                                        </form>
+                                        <form asp-action="RevokeApproval" asp-route-id="@claim.Id" method="post">
+                                            <button type="submit"
+                                                    class="btn ownership-claim-warning"
+                                                    onclick="return confirm('Bu talebin onayını geri almak istediğinize emin misiniz?');">
+                                                Onayı Geri Al
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                                else if (claim.Status == ClaimStatus.Approved && claim.FoundItem?.IsDelivered == true)
+                                {
+                                    <div class="ownership-claim-result-copy">
+                                        Eşya bu talep sahibine teslim edildi.
+                                    </div>
+                                }
+                                else if (claim.Status == ClaimStatus.Rejected)
+                                {
+                                    <div class="ownership-claim-result-copy">
+                                        Bu talep güvenlik görevlisi tarafından reddedildi.
+                                    </div>
+
+                                    @if (claim.FoundItem?.IsDelivered == false)
+                                    {
+                                        <form asp-action="RevokeRejection" asp-route-id="@claim.Id" method="post">
+                                            <button type="submit"
+                                                    class="btn ownership-claim-warning"
+                                                    onclick="return confirm('Bu talebin reddini geri almak istediğinize emin misiniz?');">
+                                                Reddi Geri Al
+                                            </button>
+                                        </form>
+                                    }
+                                }
+                                else if (claim.Status == ClaimStatus.Closed)
+                                {
+                                    <div class="ownership-claim-result-copy">
+                                        Eşya doğrulanan sahibine teslim edildiği için bu talep kapatıldı.
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            }
+        </section>
+
+        <div class="ownership-claims-filter-empty" data-filter-empty hidden>
+            Seçilen filtrelere uygun sahiplik talebi bulunamadı.
+        </div>
+    }
+</div>
+
+<script>
+    (() => {
+        const page = document.querySelector("[data-ownership-claims-page]");
+        if (!page || page.dataset.ready === "true") return;
+
+        page.dataset.ready = "true";
+
+        const list = page.querySelector("[data-claims-list]");
+        if (!list) return;
+
+        const records = Array.from(list.querySelectorAll("[data-claim-record]"));
+        const searchInput = page.querySelector("[data-claim-search]");
+        const monthSelect = page.querySelector("[data-claim-month]");
+        const sortSelect = page.querySelector("[data-claim-sort]");
+        const statusButtons = Array.from(page.querySelectorAll("[data-claim-status]"));
+        const emptyMessage = page.querySelector("[data-filter-empty]");
+        let activeStatus = "all";
+
+        const closeRecord = (record) => {
+            record.classList.remove("is-open");
+            record.querySelector("[data-claim-toggle]")
+                ?.setAttribute("aria-expanded", "false");
+        };
+
+        const openRecord = (record) => {
+            records.forEach((otherRecord) => {
+                if (otherRecord !== record) closeRecord(otherRecord);
+            });
+
+            record.classList.add("is-open");
+            record.querySelector("[data-claim-toggle]")
+                ?.setAttribute("aria-expanded", "true");
+        };
+
+        records.forEach((record) => {
+            record.querySelector("[data-claim-toggle]")
+                ?.addEventListener("click", () => {
+                    if (record.classList.contains("is-open")) {
+                        closeRecord(record);
+                    } else {
+                        openRecord(record);
+                    }
+                });
+
+        });
+
+        const applyFilters = () => {
+            const query = (searchInput?.value || "")
+                .trim()
+                .toLocaleLowerCase("tr-TR");
+            const month = monthSelect?.value || "all";
+            let visibleCount = 0;
+
+            records.forEach((record) => {
+                const matchesSearch =
+                    !query ||
+                    record.dataset.name.includes(query) ||
+                    record.dataset.email.includes(query);
+                const matchesStatus =
+                    activeStatus === "all" ||
+                    record.dataset.status === activeStatus;
+                const matchesMonth =
+                    month === "all" ||
+                    record.dataset.month === month;
+                const visible = matchesSearch && matchesStatus && matchesMonth;
+
+                record.hidden = !visible;
+                if (visible) {
+                    visibleCount += 1;
+                } else {
+                    closeRecord(record);
+                }
+            });
+
+            if (emptyMessage) emptyMessage.hidden = visibleCount !== 0;
+        };
+
+        const applySort = () => {
+            const direction = sortSelect?.value === "oldest" ? 1 : -1;
+            const sortedRecords = [...records].sort((a, b) => {
+                return (Number(a.dataset.created) - Number(b.dataset.created)) * direction;
+            });
+
+            sortedRecords.forEach((record) => list.appendChild(record));
+        };
+
+        searchInput?.addEventListener("input", applyFilters);
+        monthSelect?.addEventListener("change", applyFilters);
+        sortSelect?.addEventListener("change", () => {
+            applySort();
+            applyFilters();
+        });
+
+        statusButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                activeStatus = button.dataset.claimStatus;
+                statusButtons.forEach((item) => {
+                    item.classList.toggle("is-active", item === button);
+                });
+                applyFilters();
+            });
+        });
+
+        applySort();
+        applyFilters();
+
+        const initiallyOpen = records.find((record) => record.classList.contains("is-open"));
+        if (initiallyOpen) {
+            window.setTimeout(() => {
+                initiallyOpen.scrollIntoView({ behavior: "smooth", block: "center" });
+            }, 150);
+        }
+    })();
+</script>

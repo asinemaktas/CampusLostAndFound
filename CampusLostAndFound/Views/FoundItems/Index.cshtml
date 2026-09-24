@@ -1,0 +1,254 @@
+﻿@model IEnumerable<CampusLostAndFound.Models.FoundItem>
+
+@{
+    ViewData["Title"] = "Bulunan Eşyalar";
+}
+
+<div class="found-items-page" data-found-items-page>
+
+
+    <form method="get" class="found-items-filter-card">
+        <div class="found-items-compact-header">
+            <div class="found-items-compact-title">
+                <span class="found-items-compact-icon"
+                      aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="m20 20-4-4" />
+                    </svg>
+                </span>
+
+                <div>
+                    <h1>Kampüste bulunan eşyalar</h1>
+
+                    <p>
+                        Güvenliğe teslim edilen eşya kayıtlarında
+                        arama yapın.
+                    </p>
+                </div>
+            </div>
+
+            <span class="found-items-count-badge">
+                <i aria-hidden="true"></i>
+                @Model.Count() aktif kayıt
+            </span>
+        </div>
+
+        <div class="found-items-filter-content">
+            <div class="found-items-filter-grid">
+                <div class="found-items-search-group">
+                    <label for="foundItemSearch">Arama</label>
+
+                    <div class="found-items-input-wrapper">
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+                            <circle cx="11" cy="11" r="7" />
+                            <path d="m20 20-4-4" />
+                        </svg>
+
+                        <input id="foundItemSearch"
+                               type="text"
+                               name="searchTerm"
+                               value="@ViewBag.SearchTerm"
+                               class="form-control"
+                               placeholder="Eşya adı, renk veya açıklama ara..." />
+                    </div>
+                </div>
+
+                <div class="found-items-filter-group">
+                    <label for="foundItemCategory">
+                        Kategori
+                    </label>
+
+                    <select id="foundItemCategory"
+                            name="category"
+                            class="form-select">
+                        <option value="">Tüm kategoriler</option>
+
+                        @foreach (var itemCategory in ViewBag.Categories)
+                        {
+                            if (ViewBag.SelectedCategory == itemCategory)
+                            {
+                                <option value="@itemCategory" selected>
+                                    @itemCategory
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@itemCategory">
+                                    @itemCategory
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="found-items-filter-group">
+                    <label for="foundItemBuilding">
+                        Bina
+                    </label>
+
+                    <select id="foundItemBuilding"
+                            name="building"
+                            class="form-select">
+                        <option value="">Tüm binalar</option>
+
+                        @foreach (var itemBuilding in ViewBag.Buildings)
+                        {
+                            if (ViewBag.SelectedBuilding == itemBuilding)
+                            {
+                                <option value="@itemBuilding" selected>
+                                    @itemBuilding
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@itemBuilding">
+                                    @itemBuilding
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <button type="submit"
+                        class="btn found-items-search-button">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="m20 20-4-4" />
+                    </svg>
+
+                    <span>Ara</span>
+                </button>
+            </div>
+
+            <a asp-action="Index"
+               class="found-items-clear-link">
+                <svg viewBox="0 0 24 24"
+                     aria-hidden="true">
+                    <path d="M20 7v5a8 8 0 1 1-2.3-5.7" />
+                    <path d="M20 3v4h-4" />
+                </svg>
+
+                <span>Filtreleri Temizle</span>
+            </a>
+        </div>
+    </form>
+
+    @if (!Model.Any())
+    {
+        <div class="found-items-empty-state">
+            <h2>Eşya bulunamadı</h2>
+            <p>Arama ölçütlerine uygun bulunan eşya yok.</p>
+        </div>
+    }
+    else
+    {
+        <div class="found-items-workspace" data-found-items-workspace>
+            <section class="found-items-list-panel" aria-label="Bulunan eşya listesi">
+                <div class="found-items-section-heading">
+                    <h2>Bulunan Eşya Listesi</h2>
+                    <span>@Model.Count() eşya</span>
+                </div>
+
+                <div class="found-items-card-list">
+                    @foreach (var item in Model)
+                    {
+                        <button type="button"
+                                class="found-item-list-card"
+                                data-found-item-open="@item.Id"
+                                aria-controls="foundItemDetailPanel"
+                                aria-expanded="false">
+                            <span class="found-item-list-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M6 8h12l1 11H5L6 8Z" />
+                                    <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+                                </svg>
+                            </span>
+
+                            <span class="found-item-list-copy">
+                                <span class="found-item-list-title-row">
+                                    <strong>@item.Name</strong>
+                                    <span class="found-item-category">@item.Category</span>
+                                </span>
+                                <span class="found-item-list-meta">
+                                    <span>@item.Building — @item.FoundLocation</span>
+                                    <span>@item.FoundDate.ToString("dd.MM.yyyy HH:mm")</span>
+                                </span>
+                            </span>
+
+                            <span class="found-item-inspect-label">İncele <span aria-hidden="true">→</span></span>
+                        </button>
+                    }
+                </div>
+            </section>
+
+            <aside id="foundItemDetailPanel"
+                   class="found-item-detail-panel"
+                   data-found-item-detail-panel
+                   aria-label="Eşya ayrıntıları"
+                   aria-hidden="true">
+                @foreach (var item in Model)
+                {
+                    <article class="found-item-detail" data-found-item-detail="@item.Id" hidden>
+                        <div class="found-item-detail-topbar">
+                            <div>
+                                <span class="found-item-detail-eyebrow">Eşya Detayı</span>
+                                <h2>@item.Name</h2>
+                            </div>
+                            <button type="button"
+                                    class="found-item-detail-close"
+                                    data-found-item-close
+                                    aria-label="Detay panelini kapat">
+                                ×
+                            </button>
+                        </div>
+
+            
+
+                        <div class="found-item-detail-grid">
+                            <div class="found-item-detail-field">
+                                <span>Kategori</span>
+                                <strong>@item.Category</strong>
+                            </div>
+                            <div class="found-item-detail-field">
+                                <span>Renk</span>
+                                <strong>@item.Color</strong>
+                            </div>
+                            <div class="found-item-detail-field">
+                                <span>Bulunduğu Bina</span>
+                                <strong>@item.Building</strong>
+                            </div>
+                            <div class="found-item-detail-field">
+                                <span>Bulunma Zamanı</span>
+                                <strong>@item.FoundDate.ToString("dd.MM.yyyy HH:mm")</strong>
+                            </div>
+                            <div class="found-item-detail-field found-item-detail-field-wide">
+                                <span>Bulunduğu Yer</span>
+                                <strong>@item.FoundLocation</strong>
+                            </div>
+                        </div>
+
+                        <div class="found-item-description-card">
+                            <span>Eşya Açıklaması</span>
+                            <p>@item.PublicDescription</p>
+                        </div>
+
+                        @if (User.IsInRole("Security") || User.IsInRole("Admin"))
+                        {
+                            <div class="found-item-detail-actions">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn found-item-detail-edit">
+                                    Düzenle
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn found-item-detail-delete">
+                                    Sil
+                                </a>
+                            </div>
+                        }
+                    </article>
+                }
+            </aside>
+        </div>
+    }
+</div>
